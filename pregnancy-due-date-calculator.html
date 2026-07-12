@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pregnancy Due Date Calculator & Week-by-Week Tracker</title>
+<meta name="description" content="Free pregnancy due date calculator and week-by-week growth tracker. Enter your last period date to see your due date, current week, trimester, and baby's size.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0E1A18;
+    --bg-soft: #142523;
+    --panel: #16302C;
+    --coral: #FF9B71;
+    --coral-dim: #C97A57;
+    --sage: #9CAF88;
+    --cream: #F2EFE9;
+    --cream-dim: #B9C4BE;
+    --line: rgba(242,239,233,0.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background: radial-gradient(120% 90% at 50% -10%, #1B3833 0%, var(--bg) 55%);
+    color: var(--cream);
+    font-family: 'Work Sans', sans-serif;
+    min-height:100vh;
+    padding: 32px 18px 80px;
+  }
+  .wrap{ max-width: 760px; margin: 0 auto; }
+  header{ text-align:center; margin-bottom: 40px; }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--sage); margin-bottom: 14px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(28px, 5vw, 42px);
+    line-height: 1.15;
+    color: var(--cream);
+  }
+  .sub{ color: var(--cream-dim); margin-top: 10px; font-size: 15px; max-width: 480px; margin-left:auto; margin-right:auto;}
+
+  .card{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 22px;
+  }
+  .row{ display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; }
+  .field{ flex:1; min-width: 180px; }
+  label{ display:block; font-size: 13px; color: var(--cream-dim); margin-bottom: 8px; font-weight:500;}
+  input, select{
+    width:100%; background: var(--bg-soft); border:1px solid var(--line);
+    color: var(--cream); padding: 12px 14px; border-radius: 10px; font-size: 15px;
+    font-family:'Work Sans', sans-serif;
+  }
+  input:focus, select:focus{ outline: 2px solid var(--coral); outline-offset: 1px; }
+  button{
+    background: var(--coral); color: #1A1210; border:none; font-weight:600;
+    padding: 12px 22px; border-radius: 10px; font-size: 15px; cursor:pointer;
+    font-family:'Work Sans', sans-serif; transition: transform .15s ease, background .15s ease;
+  }
+  button:hover{ background: #ffb28d; }
+  button:active{ transform: scale(0.98); }
+
+  .result{ display:none; }
+  .result.show{ display:block; }
+
+  .ring-block{ display:flex; gap:26px; align-items:center; flex-wrap:wrap; justify-content:center; margin: 6px 0 4px;}
+  svg{ display:block; }
+  .ring-center{ text-align:center; }
+  .ring-week{ font-family:'Fraunces', serif; font-size: 38px; font-weight:700; color: var(--coral);}
+  .ring-label{ font-size: 12px; color: var(--cream-dim); letter-spacing:0.08em; text-transform:uppercase; font-family:'JetBrains Mono', monospace;}
+
+  .stat-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap:14px; margin-top: 24px;}
+  .stat{ background: var(--bg-soft); border-radius: 12px; padding: 16px; border:1px solid var(--line);}
+  .stat .num{ font-family:'Fraunces', serif; font-size: 22px; color: var(--cream); font-weight:600;}
+  .stat .lab{ font-size: 12px; color: var(--cream-dim); margin-top: 4px;}
+
+  .divider{ height:1px; background: var(--line); margin: 26px 0; }
+
+  .tracker-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom: 18px; flex-wrap:wrap; gap:10px;}
+  .tracker-head h2{ font-family:'Fraunces', serif; font-size: 20px; font-weight:600;}
+  .week-nav{ display:flex; align-items:center; gap:10px; font-family:'JetBrains Mono', monospace; font-size:13px; color: var(--cream-dim);}
+  .week-nav button{ padding:6px 12px; font-size:13px; background: var(--bg-soft); color: var(--cream); border:1px solid var(--line);}
+  .week-nav button:hover{ background:#1c3833; }
+
+  .baby-card{ display:flex; gap:22px; align-items:center; flex-wrap:wrap;}
+  .baby-visual{ flex-shrink:0; }
+  .baby-info{ flex:1; min-width:200px;}
+  .baby-size{ font-family:'JetBrains Mono', monospace; color: var(--sage); font-size:13px; margin-bottom:8px; letter-spacing:0.03em;}
+  .baby-milestone{ color: var(--cream-dim); font-size: 14.5px; line-height:1.6; }
+  .trimester-tag{
+    display:inline-block; font-family:'JetBrains Mono', monospace; font-size:11px;
+    letter-spacing:0.1em; text-transform:uppercase; color: var(--coral);
+    border:1px solid var(--coral-dim); padding:4px 10px; border-radius:20px; margin-bottom:14px;
+  }
+
+  .timeline{ display:flex; gap:3px; margin-top:22px; }
+  .tl-seg{ flex:1; height:6px; border-radius:3px; background: var(--bg-soft); }
+  .tl-seg.filled{ background: var(--coral); }
+
+  .note{ font-size: 12.5px; color: var(--cream-dim); text-align:center; margin-top: 30px; line-height:1.6; }
+  .note a{ color: var(--sage); }
+  .content-block{margin-top:32px;padding-top:8px;}
+  .content-block h2{font-family:'Fraunces',serif;font-weight:600;font-size:18px;margin:24px 0 8px;color:var(--cream);}
+  .content-block h2:first-child{margin-top:0;}
+  .content-block p{color:var(--cream-dim);font-size:14px;line-height:1.7;margin-bottom:10px;}
+  .content-block strong{color:var(--cream);}
+</style>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+
+
+
+<style>
+  .site-nav{position:sticky;top:0;z-index:100;background:rgba(18,22,29,0.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--line,#2c3542);font-family:'Inter',sans-serif;}
+  .nav-inner{max-width:1040px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:relative;}
+  .nav-logo{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;color:var(--text,#e9ecf1);text-decoration:none;letter-spacing:-0.01em;}
+  .nav-toggle{background:none;border:1px solid var(--line,#2c3542);color:var(--text,#e9ecf1);font-size:16px;padding:6px 12px;border-radius:8px;cursor:pointer;}
+  .nav-menu{display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface,#1b212b);border-bottom:1px solid var(--line,#2c3542);padding:8px 20px 14px;max-height:75vh;overflow-y:auto;}
+  .nav-menu.open{display:block;}
+  .nav-group{border-bottom:1px solid var(--line,#2c3542);}
+  .nav-group:last-child{border-bottom:none;}
+  .nav-cat{width:100%;text-align:left;background:none;border:none;color:var(--text,#e9ecf1);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;padding:12px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+  .nav-cat .arrow{transition:transform .15s ease;font-size:11px;color:var(--muted,#8b96a5);}
+  .nav-cat.open .arrow{transform:rotate(180deg);}
+  .nav-drop{display:none;padding-bottom:10px;}
+  .nav-drop.open{display:block;}
+  .nav-drop a{display:block;padding:8px 0 8px 12px;color:var(--muted,#8b96a5);text-decoration:none;font-size:13px;}
+  .nav-drop a:hover{color:#e8a33d;}
+
+  @media(min-width:760px){
+    .nav-toggle{display:none;}
+    .nav-menu{display:flex !important;position:static;background:none;border:none;padding:0;gap:26px;max-height:none;}
+    .nav-group{border:none;position:relative;}
+    .nav-cat{width:auto;padding:8px 0;}
+    .nav-drop{position:absolute;top:100%;left:0;background:var(--surface,#1b212b);border:1px solid var(--line,#2c3542);border-radius:10px;padding:8px;min-width:230px;box-shadow:0 12px 30px rgba(0,0,0,.35);}
+    .nav-group:hover .nav-drop{display:block;}
+    .nav-drop a{padding:9px 10px;border-radius:6px;}
+    .nav-drop a:hover{background:var(--surface-2,#232a35);}
+  }
+</style>
+
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="/index.html" class="nav-logo">Calculators</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">&#9776; Menu</button>
+    <div class="nav-menu" id="navMenu">
+      <div class="nav-group">
+        <button class="nav-cat" type="button">Financial <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/emi-loan-calculator.html">EMI / Loan Calculator</a>
+          <a href="/income-tax-calculator.html">Income Tax Calculator</a>
+          <a href="/sip-calculator.html">SIP Calculator</a>
+          <a href="/compound-interest-calculator.html">Compound Interest</a>
+          <a href="/gst-calculator.html">GST Calculator</a>
+          <a href="/discount-calculator.html">Discount Calculator</a>
+          <a href="/simple-interest-calculator.html">Simple Interest</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <button class="nav-cat" type="button">Health &amp; Fitness <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/bmi-calculator.html">BMI Calculator</a>
+          <a href="/calorie-calculator.html">Calorie Calculator</a>
+          <a href="/age-calculator.html">Age Calculator</a>
+          <a href="/body-fat-calculator.html">Body Fat Calculator</a>
+          <a href="/water-intake-calculator.html">Water Intake Calculator</a>
+          <a href="/pregnancy-due-date-calculator.html">Pregnancy Due Date</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <button class="nav-cat" type="button">Math &amp; Everyday <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/unit-converter.html">Unit Converter</a>
+          <a href="/percentage-calculator.html">Percentage Calculator</a>
+          <a href="/date-difference-calculator.html">Date Difference</a>
+          <a href="/gpa-calculator.html">GPA Calculator</a>
+          <a href="/tip-calculator.html">Tip Calculator</a>
+          <a href="/scientific-calculator.html">Scientific Calculator</a>
+          <a href="/random-number-generator.html">Random Number Generator</a>
+          <a href="/time-calculator.html">Time Calculator</a>
+          <a href="/fraction-calculator.html">Fraction Calculator</a>
+          <a href="/standard-deviation-calculator.html">Standard Deviation</a>
+          <a href="/password-generator.html">Password Generator</a>
+          <a href="/roman-numeral-converter.html">Roman Numeral Converter</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+
+<div class="wrap">
+  <a href="/index.html" style="color:var(--cream-dim);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:20px;">&larr; All calculators</a>
+
+  <header>
+    <div class="eyebrow">Pregnancy Tools</div>
+    <h1>Due Date Calculator &amp; Weekly Growth Tracker</h1>
+    <p class="sub">Enter the first day of your last period to find your due date, current week, and what's happening with your baby right now.</p>
+  </header>
+
+  <div class="card">
+    <div class="row">
+      <div class="field">
+        <label for="lmp">First day of last period</label>
+        <input type="date" id="lmp">
+      </div>
+      <div class="field">
+        <label for="cycle">Average cycle length (days)</label>
+        <input type="number" id="cycle" value="28" min="20" max="45">
+      </div>
+      <button onclick="calculate()">Calculate</button>
+    </div>
+  </div>
+
+  <div class="card result" id="resultCard">
+    <div class="ring-block">
+      <svg width="150" height="150" viewBox="0 0 150 150">
+        <circle cx="75" cy="75" r="64" fill="none" stroke="#1B3833" stroke-width="10"/>
+        <circle id="progressRing" cx="75" cy="75" r="64" fill="none" stroke="#FF9B71" stroke-width="10"
+                stroke-linecap="round" stroke-dasharray="402" stroke-dashoffset="402"
+                transform="rotate(-90 75 75)"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-week" id="weekNum">--</div>
+        <div class="ring-label" id="trimLabel">weeks</div>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat"><div class="num" id="dueDate">--</div><div class="lab">Estimated due date</div></div>
+      <div class="stat"><div class="num" id="daysLeft">--</div><div class="lab">Days to go</div></div>
+      <div class="stat"><div class="num" id="conceived">--</div><div class="lab">Est. conception</div></div>
+      <div class="stat"><div class="num" id="trimester">--</div><div class="lab">Trimester</div></div>
+    </div>
+  </div>
+
+  <div class="card result" id="trackerCard">
+    <div class="tracker-head">
+      <h2>Weekly Growth Tracker</h2>
+      <div class="week-nav">
+        <button onclick="shiftWeek(-1)">&larr;</button>
+        <span id="navLabel">Week --</span>
+        <button onclick="shiftWeek(1)">&rarr;</button>
+      </div>
+    </div>
+
+    <div class="baby-card">
+      <div class="baby-visual">
+        <svg id="sizeIcon" width="90" height="90" viewBox="0 0 90 90">
+          <circle cx="45" cy="45" r="30" fill="#9CAF88" opacity="0.85"/>
+        </svg>
+      </div>
+      <div class="baby-info">
+        <span class="trimester-tag" id="tagTrim">Trimester</span>
+        <div class="baby-size" id="sizeText">-- cm · -- g</div>
+        <div class="baby-milestone" id="milestoneText">Select a due date above to explore each week.</div>
+      </div>
+    </div>
+
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+  <p class="note">This tool gives estimates based on a standard 40-week pregnancy calculation and is not a substitute for advice from your doctor or midwife. Always confirm dates and milestones with your healthcare provider.</p>
+
+  <article class="content-block">
+    <h2>How your due date is calculated</h2>
+    <p>This calculator uses Naegele's rule — the standard method most doctors use for a first estimate: adding 280 days (40 weeks) to the first day of your last menstrual period. If your cycle is longer or shorter than the typical 28 days, the estimate adjusts accordingly, since ovulation timing shifts with cycle length.</p>
+
+    <h2>Why "due date" is an estimate, not a deadline</h2>
+    <p>Only a small percentage of babies are actually born on their exact due date. Full-term birth is considered anywhere from 37 to 42 weeks, so the date here is best understood as the middle of a several-week window rather than a fixed appointment.</p>
+
+    <h2>Trimesters at a glance</h2>
+    <p>First trimester: weeks 1–13, when major organs begin forming. Second trimester: weeks 14–27, often called the most comfortable stage, with noticeable growth and movement. Third trimester: weeks 28–40, focused on rapid weight gain and final development before birth.</p>
+
+    <h2>Frequently asked questions</h2>
+    <p><strong>Is this calculator accurate if I don't know my exact LMP date?</strong> An ultrasound dating scan (usually done in the first trimester) is generally more accurate than LMP-based calculation alone, especially for irregular cycles.</p>
+    <p><strong>Can the due date change during pregnancy?</strong> Yes — your doctor may adjust it based on ultrasound measurements, particularly if there's a meaningful difference from the LMP-based estimate.</p>
+  </article>
+</div>
+
+<script>
+const weekData = [
+  [1,0.1,0.001,"The journey begins — your body starts preparing for ovulation and possible conception."],
+  [2,0.1,0.001,"Ovulation typically occurs around this week. Fertilization may happen if timed with intercourse."],
+  [3,0.1,0.001,"The fertilized egg travels to the uterus and begins dividing rapidly."],
+  [4,0.2,0.001,"Implantation occurs. Hormone levels rise enough to show on a pregnancy test."],
+  [5,0.3,0.001,"The neural tube, which becomes the brain and spinal cord, starts forming."],
+  [6,0.6,0.001,"A heartbeat may become detectable on ultrasound. Facial features begin forming."],
+  [7,1.3,0.001,"Arm and leg buds appear. The embryo is growing fast."],
+  [8,1.6,0.001,"Fingers and toes start to form. All major organs have begun developing."],
+  [9,2.3,0.002,"The embryo is now officially called a fetus. Tiny muscles allow small movements."],
+  [10,3.1,0.004,"Vital organs are functioning. Nails begin to form on fingers and toes."],
+  [11,4.1,0.007,"The head is more proportional to the body. Bones start to harden."],
+  [12,5.4,0.014,"Reflexes develop — fingers can curl, toes can flex."],
+  [13,7.4,0.023,"End of the first trimester. Vocal cords are forming."],
+  [14,8.7,0.043,"Facial expressions become possible as tiny muscles develop."],
+  [15,10.1,0.07,"Bones continue hardening. Baby may begin sensing light."],
+  [16,11.6,0.1,"Legs are more developed. The heart pumps roughly 25 litres of blood a day."],
+  [17,13,0.14,"Skeleton shifts from cartilage to bone. Baby may start hiccuping."],
+  [18,14.2,0.19,"Ears reach final position — baby may respond to sounds."],
+  [19,15.3,0.24,"A protective coating called vernix begins covering the skin."],
+  [20,25.6,0.3,"Halfway there. Baby can swallow, and sex may be visible on ultrasound."],
+  [21,26.7,0.36,"Eyebrows and eyelids are fully formed."],
+  [22,27.8,0.43,"Baby's grip is strengthening. Sense of touch is developing."],
+  [23,28.9,0.5,"Blood vessels in the lungs are developing to prepare for breathing."],
+  [24,30,0.6,"Taste buds are forming. Lungs are producing surfactant."],
+  [25,34.6,0.66,"Baby is putting on baby fat, and hair may have pigment."],
+  [26,35.6,0.76,"Eyes begin to open. Baby responds more to sound and light."],
+  [27,36.6,0.875,"End of the second trimester. Brain tissue is developing rapidly."],
+  [28,37.6,1.0,"Baby can blink and may dream during sleep cycles."],
+  [29,38.6,1.15,"Muscles and lungs continue maturing. Head is growing to make room for the brain."],
+  [30,39.9,1.3,"Baby's eyes can now focus. Amniotic fluid begins to decrease."],
+  [31,41.1,1.5,"Rapid brain development continues. Baby can turn its head."],
+  [32,42.4,1.7,"Bones are fully formed, though still soft and flexible."],
+  [33,43.7,1.9,"Baby's immune system is developing, drawing antibodies from you."],
+  [34,45,2.1,"Central nervous system and lungs are nearly mature."],
+  [35,46.2,2.4,"Kidneys are fully developed and the liver can process some waste."],
+  [36,47.4,2.6,"Baby is considered early term soon. Layers of fat continue forming."],
+  [37,48.6,2.9,"Baby is considered full term this week in most guidelines."],
+  [38,49.8,3.1,"Organs are ready for life outside the womb. Grip strength continues improving."],
+  [39,50.7,3.3,"Baby continues gaining weight and settling into position for birth."],
+  [40,51.2,3.5,"Full term. Baby is ready to meet you any day now."]
+];
+
+let dueDateGlobal = null;
+let currentWeekIndex = 0;
+
+function calculate(){
+  const lmpVal = document.getElementById('lmp').value;
+  const cycle = parseInt(document.getElementById('cycle').value) || 28;
+  if(!lmpVal){ return; }
+
+  const lmp = new Date(lmpVal + 'T00:00:00');
+  const cycleAdjust = cycle - 28;
+  const due = new Date(lmp);
+  due.setDate(due.getDate() + 280 + cycleAdjust);
+
+  const conception = new Date(lmp);
+  conception.setDate(conception.getDate() + 14 + cycleAdjust);
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const daysSinceLMP = Math.floor((today - lmp) / (1000*60*60*24));
+  let currentWeek = Math.floor(daysSinceLMP / 7) + 1;
+  if(currentWeek < 1) currentWeek = 1;
+  if(currentWeek > 40) currentWeek = 40;
+
+  const daysLeft = Math.max(0, Math.floor((due - today)/(1000*60*60*24)));
+
+  let trimester = 1;
+  if(currentWeek > 27) trimester = 3;
+  else if(currentWeek > 13) trimester = 2;
+
+  document.getElementById('dueDate').textContent = due.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  document.getElementById('daysLeft').textContent = daysLeft;
+  document.getElementById('conceived').textContent = conception.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+  document.getElementById('trimester').textContent = trimester + (trimester===1?'st':trimester===2?'nd':'rd');
+  document.getElementById('weekNum').textContent = currentWeek;
+  document.getElementById('trimLabel').textContent = 'weeks';
+
+  const circumference = 402;
+  const progress = Math.min(currentWeek/40, 1);
+  document.getElementById('progressRing').style.strokeDashoffset = circumference - (circumference * progress);
+
+  dueDateGlobal = due;
+  currentWeekIndex = currentWeek - 1;
+
+  document.getElementById('resultCard').classList.add('show');
+  document.getElementById('trackerCard').classList.add('show');
+
+  buildTimeline();
+  renderWeek(currentWeekIndex);
+}
+
+function buildTimeline(){
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '';
+  for(let i=0;i<40;i++){
+    const seg = document.createElement('div');
+    seg.className = 'tl-seg' + (i <= currentWeekIndex ? ' filled' : '');
+    seg.style.cursor='pointer';
+    seg.onclick = () => renderWeek(i);
+    tl.appendChild(seg);
+  }
+}
+
+function renderWeek(idx){
+  if(idx < 0) idx = 0;
+  if(idx > 39) idx = 39;
+  currentWeekIndex = idx;
+  const [wk, cm, kg, note] = weekData[idx];
+  const grams = Math.round(kg*1000);
+
+  let trim = 1;
+  if(wk > 27) trim = 3; else if(wk > 13) trim = 2;
+
+  document.getElementById('navLabel').textContent = 'Week ' + wk;
+  document.getElementById('tagTrim').textContent = trim + (trim===1?'st':trim===2?'nd':'rd') + ' Trimester';
+  document.getElementById('sizeText').textContent = cm + ' cm · ' + (grams < 1000 ? grams + ' g' : (kg).toFixed(1) + ' kg');
+  document.getElementById('milestoneText').textContent = note;
+
+  const r = Math.max(6, Math.min(38, cm * 0.75));
+  document.getElementById('sizeIcon').innerHTML =
+    '<circle cx="45" cy="45" r="'+r+'" fill="#9CAF88" opacity="0.85"/>';
+
+  const segs = document.querySelectorAll('.tl-seg');
+  segs.forEach((s,i) => { s.classList.toggle('filled', i <= idx); });
+}
+
+function shiftWeek(delta){
+  renderWeek(currentWeekIndex + delta);
+}
+</script>
+<div style="margin:28px auto 0;max-width:460px;text-align:center;">
+<script async="async" data-cfasync="false" src="https://annoyingnightmareedit.com/df18a40bc41385d8eb1020b93064ccdf/invoke.js"></script>
+<div id="container-df18a40bc41385d8eb1020b93064ccdf"></div>
+</div>
+
+
+
+<script>
+(function(){
+  var toggle = document.getElementById('navToggle');
+  var menu = document.getElementById('navMenu');
+  if(toggle){
+    toggle.addEventListener('click', function(){ menu.classList.toggle('open'); });
+  }
+  document.querySelectorAll('.nav-cat').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(window.innerWidth < 760){
+        var drop = btn.nextElementSibling;
+        drop.classList.toggle('open');
+        btn.classList.toggle('open');
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

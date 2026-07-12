@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EMI / Loan Calculator — Calculators</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#12161d;--surface:#1b212b;--surface-2:#232a35;--line:#2c3542;--text:#e9ecf1;--muted:#8b96a5;--amber:#e8a33d;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;padding:32px 16px 60px;}
+  .wrap{max-width:460px;margin:0 auto;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .eyebrow::before{content:'';width:16px;height:1px;background:var(--amber);}
+  h1{font-family:'Sora',sans-serif;font-weight:800;font-size:26px;margin-bottom:6px;letter-spacing:-0.01em;}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:28px;}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;}
+  .field{margin-bottom:20px;}
+  .field label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:8px;}
+  .field label .val{font-family:'IBM Plex Mono',monospace;color:var(--text);font-size:14px;font-weight:600;}
+  input[type=range]{width:100%;height:4px;border-radius:2px;background:var(--line);appearance:none;-webkit-appearance:none;outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--amber);cursor:pointer;box-shadow:0 0 0 4px rgba(232,163,61,.18);}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--amber);cursor:pointer;border:none;box-shadow:0 0 0 4px rgba(232,163,61,.18);}
+  select{width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:10px 12px;border-radius:8px;outline:none;}
+  .currency-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
+  .currency-row .lbl{font-size:13px;color:var(--muted);}
+  .currency-row select{width:auto;min-width:120px;}
+  .rate-note{font-size:11px;color:var(--muted);margin-top:-14px;margin-bottom:20px;font-family:'IBM Plex Mono',monospace;}
+  .bank-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+  .bank-btn{padding:9px 6px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;}
+  .bank-btn:hover, .bank-btn.active{background:var(--amber);color:#0d1015;border-color:var(--amber);font-weight:600;}
+  .readout{margin-top:8px;background:linear-gradient(180deg,#0d1015,#14181f);border:1px solid var(--line);border-radius:12px;padding:22px 20px;box-shadow:inset 0 2px 6px rgba(0,0,0,.4);}
+  .readout .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;}
+  .readout .row:last-child{margin-bottom:0;padding-top:12px;border-top:1px dashed var(--line);}
+  .readout .k{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+  .readout .v{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#c9cfd8;}
+  .readout .v.main{font-size:30px;color:var(--amber);text-shadow:0 0 16px rgba(232,163,61,.35);}
+  footer{text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;margin-top:36px;}
+  a.back{color:var(--muted);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:24px;}
+  a.back:hover{color:var(--amber);}
+  .content-block{margin-top:28px;padding-top:8px;}
+  .content-block h2{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;margin:22px 0 8px;color:var(--text);}
+  .content-block h2:first-child{margin-top:0;}
+  .content-block p{color:var(--muted);font-size:14px;line-height:1.65;margin-bottom:10px;}
+  .content-block strong{color:var(--text);}
+  .slider-row{display:flex;align-items:center;gap:10px;}
+  .slider-row input[type=range]{flex:1;}
+  .manual-input{
+    width:84px;flex-shrink:0;
+    background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px 8px;border-radius:6px;outline:none;text-align:right;
+  }
+  .manual-input::-webkit-outer-spin-button, .manual-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .manual-input{-moz-appearance:textfield;}
+</style>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+
+
+
+<style>
+  .site-nav{position:sticky;top:0;z-index:100;background:rgba(18,22,29,0.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--line,#2c3542);font-family:'Inter',sans-serif;}
+  .nav-inner{max-width:1040px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:relative;}
+  .nav-logo{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;color:var(--text,#e9ecf1);text-decoration:none;letter-spacing:-0.01em;}
+  .nav-toggle{background:none;border:1px solid var(--line,#2c3542);color:var(--text,#e9ecf1);font-size:16px;padding:6px 12px;border-radius:8px;cursor:pointer;}
+  .nav-menu{display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface,#1b212b);border-bottom:1px solid var(--line,#2c3542);padding:8px 20px 14px;max-height:75vh;overflow-y:auto;}
+  .nav-menu.open{display:block;}
+  .nav-group{border-bottom:1px solid var(--line,#2c3542);}
+  .nav-group:last-child{border-bottom:none;}
+  .nav-cat{width:100%;text-align:left;background:none;border:none;color:var(--text,#e9ecf1);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;padding:12px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+  .nav-cat .arrow{transition:transform .15s ease;font-size:11px;color:var(--muted,#8b96a5);}
+  .nav-cat.open .arrow{transform:rotate(180deg);}
+  .nav-drop{display:none;padding-bottom:10px;}
+  .nav-drop.open{display:block;}
+  .nav-drop a{display:block;padding:8px 0 8px 12px;color:var(--muted,#8b96a5);text-decoration:none;font-size:13px;}
+  .nav-drop a:hover{color:#e8a33d;}
+
+  @media(min-width:760px){
+    .nav-toggle{display:none;}
+    .nav-menu{display:flex !important;position:static;background:none;border:none;padding:0;gap:26px;max-height:none;}
+    .nav-group{border:none;position:relative;}
+    .nav-cat{width:auto;padding:8px 0;}
+    .nav-drop{position:absolute;top:100%;left:0;background:var(--surface,#1b212b);border:1px solid var(--line,#2c3542);border-radius:10px;padding:8px;min-width:230px;box-shadow:0 12px 30px rgba(0,0,0,.35);}
+    .nav-group:hover .nav-drop{display:block;}
+    .nav-drop a{padding:9px 10px;border-radius:6px;}
+    .nav-drop a:hover{background:var(--surface-2,#232a35);}
+  }
+</style>
+
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="/index.html" class="nav-logo">Calculators</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">&#9776; Menu</button>
+    <div class="nav-menu" id="navMenu">
+      <div class="nav-group">
+        <button class="nav-cat" type="button">Financial <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/emi-loan-calculator.html">EMI / Loan Calculator</a>
+          <a href="/income-tax-calculator.html">Income Tax Calculator</a>
+          <a href="/sip-calculator.html">SIP Calculator</a>
+          <a href="/compound-interest-calculator.html">Compound Interest</a>
+          <a href="/gst-calculator.html">GST Calculator</a>
+          <a href="/discount-calculator.html">Discount Calculator</a>
+          <a href="/simple-interest-calculator.html">Simple Interest</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <button class="nav-cat" type="button">Health &amp; Fitness <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/bmi-calculator.html">BMI Calculator</a>
+          <a href="/calorie-calculator.html">Calorie Calculator</a>
+          <a href="/age-calculator.html">Age Calculator</a>
+          <a href="/body-fat-calculator.html">Body Fat Calculator</a>
+          <a href="/water-intake-calculator.html">Water Intake Calculator</a>
+          <a href="/pregnancy-due-date-calculator.html">Pregnancy Due Date</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <button class="nav-cat" type="button">Math &amp; Everyday <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/unit-converter.html">Unit Converter</a>
+          <a href="/percentage-calculator.html">Percentage Calculator</a>
+          <a href="/date-difference-calculator.html">Date Difference</a>
+          <a href="/gpa-calculator.html">GPA Calculator</a>
+          <a href="/tip-calculator.html">Tip Calculator</a>
+          <a href="/scientific-calculator.html">Scientific Calculator</a>
+          <a href="/random-number-generator.html">Random Number Generator</a>
+          <a href="/time-calculator.html">Time Calculator</a>
+          <a href="/fraction-calculator.html">Fraction Calculator</a>
+          <a href="/standard-deviation-calculator.html">Standard Deviation</a>
+          <a href="/password-generator.html">Password Generator</a>
+          <a href="/roman-numeral-converter.html">Roman Numeral Converter</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+
+<div class="wrap">
+  <a class="back" href="/index.html">&larr; All calculators</a>
+  <div class="eyebrow">Finance / Loan</div>
+  <h1>EMI / Loan Calculator</h1>
+  <p class="sub">Monthly instalment, total interest, and total payment.</p>
+
+  <div class="panel">
+    <div class="currency-row">
+      <span class="lbl">Currency</span>
+      <select id="currency">
+        <option value="PKR">₨ PKR — Pakistan</option>
+        <option value="INR" selected>₹ INR — India</option>
+        <option value="USD">$ USD — USA</option>
+        <option value="EUR">€ EUR — Eurozone</option>
+        <option value="GBP">£ GBP — UK</option>
+      </select>
+    </div>
+    <div class="rate-note" id="rateNote">Fetching live exchange rates…</div>
+
+    <div class="field">
+      <label>Loan amount <span class="val" id="amtVal">₹ 5,00,000</span></label>
+      <input type="range" id="amount" min="10000" max="10000000" step="10000" value="500000">
+    </div>
+    <div class="field">
+      <label>Interest rate (annual) <span class="val" id="rateVal">9.5%</span></label>
+      <input type="range" id="rate" min="1" max="24" step="0.1" value="9.5">
+    </div>
+    <div class="field">
+      <label style="margin-bottom:8px;" id="bankLabel">Quick-select: Indian bank (approx.)</label>
+      <div class="bank-grid" id="bankGrid"></div>
+    </div>
+    <div class="field">
+      <label>Tenure <span class="val" id="tenureVal">60 months</span></label>
+      <input type="range" id="tenure" min="3" max="360" step="1" value="60">
+    </div>
+
+    <div class="readout">
+      <div class="row"><span class="k">Monthly EMI</span><span class="v main" id="emiOut">0</span></div>
+      <div class="row"><span class="k">Total Interest</span><span class="v" id="interestOut">0</span></div>
+      <div class="row"><span class="k">Total Payment</span><span class="v" id="totalOut">0</span></div>
+    </div>
+    <p class="note" style="font-size:11px;color:var(--muted);margin-top:14px;line-height:1.5;">Bank rates are approximate midpoints and change frequently. Always confirm the exact rate with your bank before applying.</p>
+  </div>
+
+  <article class="content-block">
+    <h2>How EMI is calculated</h2>
+    <p>EMI (Equated Monthly Installment) uses the reducing balance method: EMI = P × r × (1+r)ⁿ / ((1+r)ⁿ − 1), where P is the loan amount, r is the monthly interest rate, and n is the number of months. Early payments are interest-heavy, later ones are principal-heavy.</p>
+
+    <h2>Rates vary by country and lender</h2>
+    <p>Pakistan and India price loans off KIBOR/repo-linked benchmarks with bank spreads; the US uses fixed 30-year mortgage rates tied to Treasury yields (currently averaging around 6.5%); the UK typically uses 2-5 year fixed-rate resets; and the Eurozone follows ECB-linked rates, generally lower than UK/US currently. Islamic banks (like Meezan in Pakistan) use profit rates under Diminishing Musharakah instead of interest, with similar monthly payment math.</p>
+
+    <h2>Frequently asked questions</h2>
+    <p><strong>Does a longer tenure always mean less total cost?</strong> No — a longer tenure lowers your monthly EMI but increases total interest paid over the life of the loan.</p>
+    <p><strong>Are fees included in this calculator?</strong> No, this shows principal and interest only. Lenders typically add processing fees and other charges on top.</p>
+  </article>
+</div>
+
+<footer>calculators — emi</footer>
+
+<script>
+  const symbols = { USD:'$', INR:'₹', PKR:'₨', EUR:'€', GBP:'£' };
+  const inrLocale = { INR:'en-IN', PKR:'en-IN' };
+  let rates = { USD:1, INR:83.5, PKR:278, EUR:0.92, GBP:0.79 };
+  let currentCurrency = 'INR';
+  const baseUSD = { min:120, max:120000, step:10 };
+
+  const banks = {
+    PKR: { label: 'Pakistani bank', list: [
+      ['HBL ~22.5%',22.5], ['UBL ~23%',23], ['Meezan ~21.75%',21.75],
+      ['MCB ~21.75%',21.75], ['Allied Bank ~23.5%',23.5], ['Bank Alfalah ~22.25%',22.25]
+    ]},
+    INR: { label: 'Indian bank', list: [
+      ['SBI ~8.5%',8.5], ['HDFC ~8.6%',8.6], ['ICICI ~8.65%',8.65],
+      ['Axis Bank ~8.75%',8.75], ['PNB ~8.5%',8.5], ['Bank of Baroda ~8.4%',8.4]
+    ]},
+    USD: { label: 'US lender', list: [
+      ['Chase ~6.6%',6.6], ['Wells Fargo ~6.5%',6.5], ['Bank of America ~6.55%',6.55],
+      ['Citi ~6.6%',6.6], ['US Bank ~6.5%',6.5], ['30-yr avg ~6.5%',6.5]
+    ]},
+    GBP: { label: 'UK lender', list: [
+      ['Halifax ~4.8%',4.8], ['NatWest ~4.9%',4.9], ['Barclays ~4.7%',4.7],
+      ['HSBC UK ~4.6%',4.6], ['Nationwide ~4.75%',4.75], ['Santander UK ~4.85%',4.85]
+    ]},
+    EUR: { label: 'Eurozone bank', list: [
+      ['BNP Paribas ~3.6%',3.6], ['Deutsche Bank ~3.5%',3.5], ['ING ~3.4%',3.4],
+      ['Santander ~3.7%',3.7], ['UniCredit ~3.65%',3.65], ['Eurozone avg ~3.5%',3.5]
+    ]}
+  };
+
+  const currencySel = document.getElementById('currency');
+  const rateNote = document.getElementById('rateNote');
+  const amount = document.getElementById('amount');
+  const rate = document.getElementById('rate');
+  const tenure = document.getElementById('tenure');
+  const amtVal = document.getElementById('amtVal');
+  const rateVal = document.getElementById('rateVal');
+  const tenureVal = document.getElementById('tenureVal');
+  const emiOut = document.getElementById('emiOut');
+  const interestOut = document.getElementById('interestOut');
+  const totalOut = document.getElementById('totalOut');
+  const bankLabel = document.getElementById('bankLabel');
+  const bankGrid = document.getElementById('bankGrid');
+
+  function niceRound(num){
+    const magnitude = Math.pow(10, Math.floor(Math.log10(num)) - 1);
+    return Math.round(num / magnitude) * magnitude;
+  }
+  function formatCurrency(num){
+    const locale = inrLocale[currentCurrency] || 'en-US';
+    return symbols[currentCurrency] + ' ' + Math.round(num).toLocaleString(locale);
+  }
+  function toUSD(value, cur){ return value / rates[cur]; }
+  function fromUSD(valueUSD, cur){ return valueUSD * rates[cur]; }
+
+  function applyCurrencyBounds(){
+    const min = niceRound(fromUSD(baseUSD.min, currentCurrency));
+    const max = niceRound(fromUSD(baseUSD.max, currentCurrency));
+    const step = niceRound(fromUSD(baseUSD.step, currentCurrency)) || 1;
+    amount.min = min; amount.max = max; amount.step = step;
+  }
+
+  function renderBanks(){
+    const cfg = banks[currentCurrency];
+    bankLabel.textContent = 'Quick-select: ' + cfg.label + ' (approx.)';
+    bankGrid.innerHTML = '';
+    cfg.list.forEach(([label, r]) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'bank-btn';
+      btn.textContent = label;
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.bank-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        rate.value = r;
+        calculate();
+      });
+      bankGrid.appendChild(btn);
+    });
+  }
+
+  function switchCurrency(newCurrency){
+    const oldCurrency = currentCurrency;
+    const currentUSD = toUSD(parseFloat(amount.value), oldCurrency);
+    currentCurrency = newCurrency;
+    applyCurrencyBounds();
+    let newVal = fromUSD(currentUSD, newCurrency);
+    newVal = Math.min(Math.max(newVal, parseFloat(amount.min)), parseFloat(amount.max));
+    amount.value = Math.round(newVal);
+    renderBanks();
+    calculate();
+  }
+
+  currencySel.addEventListener('change', () => switchCurrency(currencySel.value));
+
+  async function fetchLiveRates(){
+    try {
+      const res = await fetch('https://open.er-api.com/v6/latest/USD');
+      const data = await res.json();
+      if (data && data.rates){
+        rates = { USD:1, INR:data.rates.INR||rates.INR, PKR:data.rates.PKR||rates.PKR, EUR:data.rates.EUR||rates.EUR, GBP:data.rates.GBP||rates.GBP };
+        rateNote.textContent = 'Live exchange rates';
+      } else { throw new Error('no rates'); }
+    } catch(e){
+      rateNote.textContent = 'Using approximate offline rates';
+    }
+    applyCurrencyBounds();
+    calculate();
+  }
+
+  function calculate(){
+    const P = parseFloat(amount.value);
+    const annualRate = parseFloat(rate.value);
+    const n = parseInt(tenure.value);
+    const r = annualRate / 12 / 100;
+
+    let emi;
+    if (r === 0){ emi = P / n; }
+    else { emi = P * r * Math.pow(1+r, n) / (Math.pow(1+r, n) - 1); }
+    const total = emi * n;
+    const interest = total - P;
+
+    amtVal.textContent = formatCurrency(P);
+    rateVal.textContent = annualRate.toFixed(1) + '%';
+    tenureVal.textContent = n + ' months';
+    emiOut.textContent = formatCurrency(emi);
+    interestOut.textContent = formatCurrency(interest);
+    totalOut.textContent = formatCurrency(total);
+  }
+
+  [amount, rate, tenure].forEach(el => el.addEventListener('input', calculate));
+  applyCurrencyBounds();
+  renderBanks();
+  calculate();
+  fetchLiveRates();
+</script>
+<div style="margin:28px auto 0;max-width:460px;text-align:center;">
+<script async="async" data-cfasync="false" src="https://annoyingnightmareedit.com/df18a40bc41385d8eb1020b93064ccdf/invoke.js"></script>
+<div id="container-df18a40bc41385d8eb1020b93064ccdf"></div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  document.querySelectorAll("input[type=range]").forEach(function(slider){
+    var wrapper = document.createElement("div");
+    wrapper.className = "slider-row";
+    slider.parentNode.insertBefore(wrapper, slider);
+    wrapper.appendChild(slider);
+
+    var numInput = document.createElement("input");
+    numInput.type = "number";
+    numInput.className = "manual-input";
+    numInput.value = slider.value;
+    numInput.step = slider.step || 1;
+    wrapper.appendChild(numInput);
+
+    numInput.addEventListener("input", function(){
+      var val = parseFloat(numInput.value);
+      if (isNaN(val)) return;
+      var min = parseFloat(slider.min);
+      var max = parseFloat(slider.max);
+      if (val < min) val = min;
+      if (val > max) val = max;
+      slider.value = val;
+      slider.dispatchEvent(new Event("input", {bubbles:true}));
+    });
+
+    slider.addEventListener("input", function(){
+      numInput.value = slider.value;
+    });
+  });
+});
+</script>
+
+
+
+<script>
+(function(){
+  var toggle = document.getElementById('navToggle');
+  var menu = document.getElementById('navMenu');
+  if(toggle){
+    toggle.addEventListener('click', function(){ menu.classList.toggle('open'); });
+  }
+  document.querySelectorAll('.nav-cat').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(window.innerWidth < 760){
+        var drop = btn.nextElementSibling;
+        drop.classList.toggle('open');
+        btn.classList.toggle('open');
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

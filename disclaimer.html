@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disclaimer — Calculators</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#12161d;--surface:#1b212b;--line:#2c3542;--text:#e9ecf1;--muted:#8b96a5;--amber:#e8a33d;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;padding:32px 16px 60px;line-height:1.7;}
+  .wrap{max-width:640px;margin:0 auto;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .eyebrow::before{content:'';width:16px;height:1px;background:var(--amber);}
+  h1{font-family:'Sora',sans-serif;font-weight:800;font-size:28px;margin-bottom:20px;letter-spacing:-0.01em;}
+  h2{font-family:'Sora',sans-serif;font-weight:700;font-size:18px;margin:28px 0 10px;color:var(--text);}
+  p{color:var(--muted);font-size:15px;margin-bottom:14px;}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px;}
+  .updated{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);margin-bottom:24px;}
+  a.back{color:var(--muted);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:24px;}
+  a.back:hover{color:var(--amber);}
+  footer{text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;margin-top:36px;}
+  footer a{color:var(--muted);text-decoration:none;margin:0 6px;}
+  footer a:hover{color:var(--amber);}
+</style>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+
+
+
+<style>
+  .site-nav{position:sticky;top:0;z-index:100;background:rgba(18,22,29,0.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--line,#2c3542);font-family:'Inter',sans-serif;}
+  .nav-inner{max-width:1040px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:relative;}
+  .nav-logo{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;color:var(--text,#e9ecf1);text-decoration:none;letter-spacing:-0.01em;}
+  .nav-toggle{background:none;border:1px solid var(--line,#2c3542);color:var(--text,#e9ecf1);font-size:16px;padding:6px 12px;border-radius:8px;cursor:pointer;}
+  .nav-menu{display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface,#1b212b);border-bottom:1px solid var(--line,#2c3542);padding:8px 20px 14px;max-height:75vh;overflow-y:auto;}
+  .nav-menu.open{display:block;}
+  .nav-group{border-bottom:1px solid var(--line,#2c3542);}
+  .nav-group:last-child{border-bottom:none;}
+  .nav-cat{width:100%;text-align:left;background:none;border:none;color:var(--text,#e9ecf1);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;padding:12px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+  .nav-cat .arrow{transition:transform .15s ease;font-size:11px;color:var(--muted,#8b96a5);}
+  .nav-cat.open .arrow{transform:rotate(180deg);}
+  .nav-drop{display:none;padding-bottom:10px;}
+  .nav-drop.open{display:block;}
+  .nav-drop a{display:block;padding:8px 0 8px 12px;color:var(--muted,#8b96a5);text-decoration:none;font-size:13px;}
+  .nav-drop a:hover{color:#e8a33d;}
+
+  @media(min-width:760px){
+    .nav-toggle{display:none;}
+    .nav-menu{display:flex !important;position:static;background:none;border:none;padding:0;gap:26px;max-height:none;}
+    .nav-group{border:none;position:relative;}
+    .nav-cat{width:auto;padding:8px 0;}
+    .nav-drop{position:absolute;top:100%;left:0;background:var(--surface,#1b212b);border:1px solid var(--line,#2c3542);border-radius:10px;padding:8px;min-width:230px;box-shadow:0 12px 30px rgba(0,0,0,.35);}
+    .nav-group:hover .nav-drop{display:block;}
+    .nav-drop a{padding:9px 10px;border-radius:6px;}
+    .nav-drop a:hover{background:var(--surface-2,#232a35);}
+  }
+</style>
+
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="/index.html" class="nav-logo">Calculators</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">&#9776; Menu</button>
+    <div class="nav-menu" id="navMenu">
+      <div class="nav-group">
+        <button class="nav-cat" type="button">Financial <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/emi-loan-calculator.html">EMI / Loan Calculator</a>
+          <a href="/income-tax-calculator.html">Income Tax Calculator</a>
+          <a href="/sip-calculator.html">SIP Calculator</a>
+          <a href="/compound-interest-calculator.html">Compound Interest</a>
+          <a href="/gst-calculator.html">GST Calculator</a>
+          <a href="/discount-calculator.html">Discount Calculator</a>
+          <a href="/simple-interest-calculator.html">Simple Interest</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <button class="nav-cat" type="button">Health &amp; Fitness <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/bmi-calculator.html">BMI Calculator</a>
+          <a href="/calorie-calculator.html">Calorie Calculator</a>
+          <a href="/age-calculator.html">Age Calculator</a>
+          <a href="/body-fat-calculator.html">Body Fat Calculator</a>
+          <a href="/water-intake-calculator.html">Water Intake Calculator</a>
+          <a href="/pregnancy-due-date-calculator.html">Pregnancy Due Date</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <button class="nav-cat" type="button">Math &amp; Everyday <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/unit-converter.html">Unit Converter</a>
+          <a href="/percentage-calculator.html">Percentage Calculator</a>
+          <a href="/date-difference-calculator.html">Date Difference</a>
+          <a href="/gpa-calculator.html">GPA Calculator</a>
+          <a href="/tip-calculator.html">Tip Calculator</a>
+          <a href="/scientific-calculator.html">Scientific Calculator</a>
+          <a href="/random-number-generator.html">Random Number Generator</a>
+          <a href="/time-calculator.html">Time Calculator</a>
+          <a href="/fraction-calculator.html">Fraction Calculator</a>
+          <a href="/standard-deviation-calculator.html">Standard Deviation</a>
+          <a href="/password-generator.html">Password Generator</a>
+          <a href="/roman-numeral-converter.html">Roman Numeral Converter</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+
+<div class="wrap">
+  <a class="back" href="/index.html">&larr; Back to calculators</a>
+  <div class="eyebrow">Disclaimer</div>
+  <h1>Disclaimer</h1>
+  <p class="updated">Last updated: July 2026</p>
+
+  <div class="panel">
+    <p>The calculators on this website (Calculators, calculators24.online) are provided for general informational and educational purposes only. While we aim for formula-based accuracy, results should be treated as <strong>estimates</strong>, not guarantees.</p>
+
+    <h2>Not professional advice</h2>
+    <p>Nothing on this site constitutes financial, tax, investment, medical, legal, or other professional advice. Calculators such as EMI, SIP, Income Tax, Compound Interest, BMI, and Calorie tools are meant to help with rough planning only. Always consult a qualified professional (financial advisor, accountant, doctor, etc.) before making decisions based on these results.</p>
+
+    <h2>No guarantee of accuracy</h2>
+    <p>We test our calculators against standard formulas, but we do not guarantee that results are error-free, complete, or applicable to your specific situation. Interest rates, tax slabs, and health formulas can change or vary by region and individual circumstances.</p>
+
+    <h2>Limitation of liability</h2>
+    <p>We are not liable for any loss or damage — financial, health-related, or otherwise — arising from reliance on any calculator, information, or result provided on this site.</p>
+
+    <h2>Third-party links</h2>
+    <p>Any external links on this site are provided for convenience. We do not control or endorse the content of external websites.</p>
+
+    <h2>Changes</h2>
+    <p>This disclaimer may be updated from time to time without prior notice. Continued use of the site means you accept the current version.</p>
+  </div>
+
+  <footer>
+    <a href="/index.html">Home</a>·
+    <a href="/about.html">About</a>·
+    <a href="/privacy-policy.html">Privacy</a>·
+    <a href="/terms-and-conditions.html">Terms</a>·
+    <a href="/disclaimer.html">Disclaimer</a>
+  </footer>
+</div>
+
+
+
+<script>
+(function(){
+  var toggle = document.getElementById('navToggle');
+  var menu = document.getElementById('navMenu');
+  if(toggle){
+    toggle.addEventListener('click', function(){ menu.classList.toggle('open'); });
+  }
+  document.querySelectorAll('.nav-cat').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(window.innerWidth < 760){
+        var drop = btn.nextElementSibling;
+        drop.classList.toggle('open');
+        btn.classList.toggle('open');
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

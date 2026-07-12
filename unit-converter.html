@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Converter — Calculators</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#12161d;--surface:#1b212b;--surface-2:#232a35;--line:#2c3542;--text:#e9ecf1;--muted:#8b96a5;--accent:#9b8cf2;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;padding:32px 16px 60px;}
+  .wrap{max-width:460px;margin:0 auto;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .eyebrow::before{content:'';width:16px;height:1px;background:var(--accent);}
+  h1{font-family:'Sora',sans-serif;font-weight:800;font-size:26px;margin-bottom:6px;letter-spacing:-0.01em;}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:28px;}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;}
+  .toggle-row{display:flex;gap:8px;margin-bottom:22px;}
+  .toggle-row button{
+    flex:1;padding:10px;border-radius:8px;border:1px solid var(--line);
+    background:var(--surface-2);color:var(--muted);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;
+  }
+  .toggle-row button.active{background:var(--accent);color:#0d1015;border-color:var(--accent);font-weight:600;}
+  .convert-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .convert-row input[type=number]{
+    flex:1;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    font-family:'IBM Plex Mono',monospace;font-size:16px;padding:12px;border-radius:8px;outline:none;min-width:0;
+  }
+  .convert-row input[type=number]:focus{border-color:var(--accent);}
+  select{
+    background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    font-family:'IBM Plex Mono',monospace;font-size:13px;padding:12px 8px;border-radius:8px;outline:none;
+  }
+  .swap{
+    text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:18px;margin:6px 0;
+  }
+  .readout{margin-top:14px;background:linear-gradient(180deg,#0d1015,#14181f);border:1px solid var(--line);border-radius:12px;padding:22px 20px;box-shadow:inset 0 2px 6px rgba(0,0,0,.4);text-align:center;}
+  .readout .v.main{font-family:'IBM Plex Mono',monospace;font-size:30px;color:var(--accent);text-shadow:0 0 16px rgba(155,140,242,.35);}
+  footer{text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;margin-top:36px;}
+  a.back{color:var(--muted);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:24px;}
+  a.back:hover{color:var(--accent);}
+  .content-block{margin-top:28px;padding-top:8px;}
+  .content-block h2{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;margin:22px 0 8px;color:var(--text);}
+  .content-block h2:first-child{margin-top:0;}
+  .content-block p{color:var(--muted);font-size:14px;line-height:1.65;margin-bottom:10px;}
+  .content-block strong{color:var(--text);}
+</style>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+
+
+
+<style>
+  .site-nav{position:sticky;top:0;z-index:100;background:rgba(18,22,29,0.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--line,#2c3542);font-family:'Inter',sans-serif;}
+  .nav-inner{max-width:1040px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:relative;}
+  .nav-logo{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;color:var(--text,#e9ecf1);text-decoration:none;letter-spacing:-0.01em;}
+  .nav-toggle{background:none;border:1px solid var(--line,#2c3542);color:var(--text,#e9ecf1);font-size:16px;padding:6px 12px;border-radius:8px;cursor:pointer;}
+  .nav-menu{display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface,#1b212b);border-bottom:1px solid var(--line,#2c3542);padding:8px 20px 14px;max-height:75vh;overflow-y:auto;}
+  .nav-menu.open{display:block;}
+  .nav-group{border-bottom:1px solid var(--line,#2c3542);}
+  .nav-group:last-child{border-bottom:none;}
+  .nav-cat{width:100%;text-align:left;background:none;border:none;color:var(--text,#e9ecf1);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;padding:12px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+  .nav-cat .arrow{transition:transform .15s ease;font-size:11px;color:var(--muted,#8b96a5);}
+  .nav-cat.open .arrow{transform:rotate(180deg);}
+  .nav-drop{display:none;padding-bottom:10px;}
+  .nav-drop.open{display:block;}
+  .nav-drop a{display:block;padding:8px 0 8px 12px;color:var(--muted,#8b96a5);text-decoration:none;font-size:13px;}
+  .nav-drop a:hover{color:#e8a33d;}
+
+  @media(min-width:760px){
+    .nav-toggle{display:none;}
+    .nav-menu{display:flex !important;position:static;background:none;border:none;padding:0;gap:26px;max-height:none;}
+    .nav-group{border:none;position:relative;}
+    .nav-cat{width:auto;padding:8px 0;}
+    .nav-drop{position:absolute;top:100%;left:0;background:var(--surface,#1b212b);border:1px solid var(--line,#2c3542);border-radius:10px;padding:8px;min-width:230px;box-shadow:0 12px 30px rgba(0,0,0,.35);}
+    .nav-group:hover .nav-drop{display:block;}
+    .nav-drop a{padding:9px 10px;border-radius:6px;}
+    .nav-drop a:hover{background:var(--surface-2,#232a35);}
+  }
+</style>
+
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="/index.html" class="nav-logo">Calculators</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">&#9776; Menu</button>
+    <div class="nav-menu" id="navMenu">
+      <div class="nav-group">
+        <button class="nav-cat" type="button">Financial <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/emi-loan-calculator.html">EMI / Loan Calculator</a>
+          <a href="/income-tax-calculator.html">Income Tax Calculator</a>
+          <a href="/sip-calculator.html">SIP Calculator</a>
+          <a href="/compound-interest-calculator.html">Compound Interest</a>
+          <a href="/gst-calculator.html">GST Calculator</a>
+          <a href="/discount-calculator.html">Discount Calculator</a>
+          <a href="/simple-interest-calculator.html">Simple Interest</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <button class="nav-cat" type="button">Health &amp; Fitness <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/bmi-calculator.html">BMI Calculator</a>
+          <a href="/calorie-calculator.html">Calorie Calculator</a>
+          <a href="/age-calculator.html">Age Calculator</a>
+          <a href="/body-fat-calculator.html">Body Fat Calculator</a>
+          <a href="/water-intake-calculator.html">Water Intake Calculator</a>
+          <a href="/pregnancy-due-date-calculator.html">Pregnancy Due Date</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <button class="nav-cat" type="button">Math &amp; Everyday <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/unit-converter.html">Unit Converter</a>
+          <a href="/percentage-calculator.html">Percentage Calculator</a>
+          <a href="/date-difference-calculator.html">Date Difference</a>
+          <a href="/gpa-calculator.html">GPA Calculator</a>
+          <a href="/tip-calculator.html">Tip Calculator</a>
+          <a href="/scientific-calculator.html">Scientific Calculator</a>
+          <a href="/random-number-generator.html">Random Number Generator</a>
+          <a href="/time-calculator.html">Time Calculator</a>
+          <a href="/fraction-calculator.html">Fraction Calculator</a>
+          <a href="/standard-deviation-calculator.html">Standard Deviation</a>
+          <a href="/password-generator.html">Password Generator</a>
+          <a href="/roman-numeral-converter.html">Roman Numeral Converter</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+
+<div class="wrap">
+  <a class="back" href="/index.html">&larr; All calculators</a>
+  <div class="eyebrow">Math / Convert</div>
+  <h1>Unit Converter</h1>
+  <p class="sub">Length, weight, and temperature — instant conversion.</p>
+
+  <div class="panel">
+    <div class="toggle-row">
+      <button type="button" class="active" data-cat="length">Length</button>
+      <button type="button" data-cat="weight">Weight</button>
+      <button type="button" data-cat="temp">Temperature</button>
+    </div>
+
+    <div class="convert-row">
+      <input type="number" id="fromValue" value="1">
+      <select id="fromUnit"></select>
+    </div>
+    <div class="swap">↓</div>
+    <div class="convert-row">
+      <input type="number" id="toValue" readonly>
+      <select id="toUnit"></select>
+    </div>
+
+    <div class="readout">
+      <span class="v main" id="resultText">—</span>
+    </div>
+  </div>
+
+  <article class="content-block">
+    <h2>Length, weight, and temperature conversions</h2>
+    <p>This converter handles the most commonly needed unit types: length (metric and imperial), weight (kilograms, pounds, ounces, and more), and temperature (Celsius, Fahrenheit, Kelvin) — covering the conversions people search for most often in cooking, travel, fitness, and everyday measurement.</p>
+
+    <h2>Temperature conversion formulas</h2>
+    <p>Celsius to Fahrenheit: °F = °C × 9/5 + 32. Fahrenheit to Celsius: °C = (°F − 32) × 5/9. Celsius to Kelvin: K = °C + 273.15. These aren't simple ratios like length or weight, since each scale has a different zero point.</p>
+
+    <h2>Why metric and imperial coexist</h2>
+    <p>Most of the world uses the metric system, but a few countries (notably the US) primarily use imperial units for everyday measurement, which is why converters like this remain useful for travel, recipes, and international communication.</p>
+
+    <h2>Frequently asked questions</h2>
+    <p><strong>Why do my numbers have long decimals?</strong> Some conversions (like inches to centimeters) don't divide evenly — this tool rounds to 4 decimal places for practical accuracy without excessive digits.</p>
+    <p><strong>Can I convert between length and weight?</strong> No — length and weight are different physical quantities, so conversions only work within the same category (e.g., meters to feet, not meters to kilograms).</p>
+  </article>
+</div>
+
+<footer>calculators — unit converter</footer>
+
+<script>
+  const units = {
+    length: {
+      m: 1, km: 1000, cm: 0.01, mm: 0.001,
+      mile: 1609.34, yard: 0.9144, foot: 0.3048, inch: 0.0254
+    },
+    weight: {
+      kg: 1, g: 0.001, mg: 0.000001,
+      lb: 0.453592, oz: 0.0283495, ton: 1000
+    }
+  };
+
+  let category = 'length';
+  const buttons = document.querySelectorAll('.toggle-row button');
+  const fromValue = document.getElementById('fromValue');
+  const toValue = document.getElementById('toValue');
+  const fromUnit = document.getElementById('fromUnit');
+  const toUnit = document.getElementById('toUnit');
+  const resultText = document.getElementById('resultText');
+
+  function populateUnits(){
+    fromUnit.innerHTML = '';
+    toUnit.innerHTML = '';
+    if (category === 'temp'){
+      ['Celsius','Fahrenheit','Kelvin'].forEach((u,i) => {
+        fromUnit.innerHTML += `<option value="${u}">${u}</option>`;
+        toUnit.innerHTML += `<option value="${u}">${u}</option>`;
+      });
+      toUnit.selectedIndex = 1;
+    } else {
+      Object.keys(units[category]).forEach(u => {
+        fromUnit.innerHTML += `<option value="${u}">${u}</option>`;
+        toUnit.innerHTML += `<option value="${u}">${u}</option>`;
+      });
+      toUnit.selectedIndex = 1;
+    }
+    calculate();
+  }
+
+  function convertTemp(val, from, to){
+    let celsius;
+    if (from === 'Celsius') celsius = val;
+    else if (from === 'Fahrenheit') celsius = (val - 32) * 5/9;
+    else celsius = val - 273.15;
+
+    if (to === 'Celsius') return celsius;
+    if (to === 'Fahrenheit') return celsius * 9/5 + 32;
+    return celsius + 273.15;
+  }
+
+  function calculate(){
+    const val = parseFloat(fromValue.value) || 0;
+    let result;
+    if (category === 'temp'){
+      result = convertTemp(val, fromUnit.value, toUnit.value);
+    } else {
+      const baseVal = val * units[category][fromUnit.value];
+      result = baseVal / units[category][toUnit.value];
+    }
+    toValue.value = Math.round(result * 10000) / 10000;
+    resultText.textContent = `${val} ${fromUnit.value || ''} = ${toValue.value} ${toUnit.value || ''}`;
+  }
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      category = btn.dataset.cat;
+      populateUnits();
+    });
+  });
+
+  [fromValue, fromUnit, toUnit].forEach(el => el.addEventListener('input', calculate));
+  populateUnits();
+</script>
+<div style="margin:28px auto 0;max-width:460px;text-align:center;">
+<script async="async" data-cfasync="false" src="https://annoyingnightmareedit.com/df18a40bc41385d8eb1020b93064ccdf/invoke.js"></script>
+<div id="container-df18a40bc41385d8eb1020b93064ccdf"></div>
+</div>
+
+
+
+<script>
+(function(){
+  var toggle = document.getElementById('navToggle');
+  var menu = document.getElementById('navMenu');
+  if(toggle){
+    toggle.addEventListener('click', function(){ menu.classList.toggle('open'); });
+  }
+  document.querySelectorAll('.nav-cat').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(window.innerWidth < 760){
+        var drop = btn.nextElementSibling;
+        drop.classList.toggle('open');
+        btn.classList.toggle('open');
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

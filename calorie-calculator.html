@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calorie Calculator — Calculators</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#12161d;--surface:#1b212b;--surface-2:#232a35;--line:#2c3542;--text:#e9ecf1;--muted:#8b96a5;--accent:#4fd1c5;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;padding:32px 16px 60px;}
+  .wrap{max-width:460px;margin:0 auto;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .eyebrow::before{content:'';width:16px;height:1px;background:var(--accent);}
+  h1{font-family:'Sora',sans-serif;font-weight:800;font-size:26px;margin-bottom:6px;letter-spacing:-0.01em;}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:28px;}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;}
+  .field{margin-bottom:20px;}
+  .field label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:8px;}
+  .field label .val{font-family:'IBM Plex Mono',monospace;color:var(--text);font-size:14px;font-weight:600;}
+  input[type=range]{width:100%;height:4px;border-radius:2px;background:var(--line);appearance:none;-webkit-appearance:none;outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 0 4px rgba(79,209,197,.18);}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;border:none;box-shadow:0 0 0 4px rgba(79,209,197,.18);}
+  select{width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:10px 12px;border-radius:8px;outline:none;}
+  .toggle-row{display:flex;gap:8px;}
+  .toggle-row button{
+    flex:1;padding:10px;border-radius:8px;border:1px solid var(--line);
+    background:var(--surface-2);color:var(--muted);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;
+  }
+  .toggle-row button.active{background:var(--accent);color:#0d1015;border-color:var(--accent);font-weight:600;}
+  .readout{margin-top:8px;background:linear-gradient(180deg,#0d1015,#14181f);border:1px solid var(--line);border-radius:12px;padding:22px 20px;box-shadow:inset 0 2px 6px rgba(0,0,0,.4);}
+  .readout .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;}
+  .readout .row:last-child{margin-bottom:0;padding-top:12px;border-top:1px dashed var(--line);}
+  .readout .k{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+  .readout .v{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#c9cfd8;}
+  .readout .v.main{font-size:30px;color:var(--accent);text-shadow:0 0 16px rgba(79,209,197,.35);}
+  footer{text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;margin-top:36px;}
+  a.back{color:var(--muted);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:24px;}
+  a.back:hover{color:var(--accent);}
+  .slider-row{display:flex;align-items:center;gap:10px;}
+  .slider-row input[type=range]{flex:1;}
+  .manual-input{
+    width:84px;flex-shrink:0;
+    background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px 8px;border-radius:6px;outline:none;text-align:right;
+  }
+  .manual-input::-webkit-outer-spin-button, .manual-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .manual-input{-moz-appearance:textfield;}
+  .content-block{margin-top:28px;padding-top:8px;}
+  .content-block h2{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;margin:22px 0 8px;color:var(--text);}
+  .content-block h2:first-child{margin-top:0;}
+  .content-block p{color:var(--muted);font-size:14px;line-height:1.65;margin-bottom:10px;}
+  .content-block strong{color:var(--text);}
+</style>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+
+
+
+<style>
+  .site-nav{position:sticky;top:0;z-index:100;background:rgba(18,22,29,0.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--line,#2c3542);font-family:'Inter',sans-serif;}
+  .nav-inner{max-width:1040px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:relative;}
+  .nav-logo{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;color:var(--text,#e9ecf1);text-decoration:none;letter-spacing:-0.01em;}
+  .nav-toggle{background:none;border:1px solid var(--line,#2c3542);color:var(--text,#e9ecf1);font-size:16px;padding:6px 12px;border-radius:8px;cursor:pointer;}
+  .nav-menu{display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface,#1b212b);border-bottom:1px solid var(--line,#2c3542);padding:8px 20px 14px;max-height:75vh;overflow-y:auto;}
+  .nav-menu.open{display:block;}
+  .nav-group{border-bottom:1px solid var(--line,#2c3542);}
+  .nav-group:last-child{border-bottom:none;}
+  .nav-cat{width:100%;text-align:left;background:none;border:none;color:var(--text,#e9ecf1);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;padding:12px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+  .nav-cat .arrow{transition:transform .15s ease;font-size:11px;color:var(--muted,#8b96a5);}
+  .nav-cat.open .arrow{transform:rotate(180deg);}
+  .nav-drop{display:none;padding-bottom:10px;}
+  .nav-drop.open{display:block;}
+  .nav-drop a{display:block;padding:8px 0 8px 12px;color:var(--muted,#8b96a5);text-decoration:none;font-size:13px;}
+  .nav-drop a:hover{color:#e8a33d;}
+
+  @media(min-width:760px){
+    .nav-toggle{display:none;}
+    .nav-menu{display:flex !important;position:static;background:none;border:none;padding:0;gap:26px;max-height:none;}
+    .nav-group{border:none;position:relative;}
+    .nav-cat{width:auto;padding:8px 0;}
+    .nav-drop{position:absolute;top:100%;left:0;background:var(--surface,#1b212b);border:1px solid var(--line,#2c3542);border-radius:10px;padding:8px;min-width:230px;box-shadow:0 12px 30px rgba(0,0,0,.35);}
+    .nav-group:hover .nav-drop{display:block;}
+    .nav-drop a{padding:9px 10px;border-radius:6px;}
+    .nav-drop a:hover{background:var(--surface-2,#232a35);}
+  }
+</style>
+
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="/index.html" class="nav-logo">Calculators</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">&#9776; Menu</button>
+    <div class="nav-menu" id="navMenu">
+      <div class="nav-group">
+        <button class="nav-cat" type="button">Financial <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/emi-loan-calculator.html">EMI / Loan Calculator</a>
+          <a href="/income-tax-calculator.html">Income Tax Calculator</a>
+          <a href="/sip-calculator.html">SIP Calculator</a>
+          <a href="/compound-interest-calculator.html">Compound Interest</a>
+          <a href="/gst-calculator.html">GST Calculator</a>
+          <a href="/discount-calculator.html">Discount Calculator</a>
+          <a href="/simple-interest-calculator.html">Simple Interest</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <button class="nav-cat" type="button">Health &amp; Fitness <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/bmi-calculator.html">BMI Calculator</a>
+          <a href="/calorie-calculator.html">Calorie Calculator</a>
+          <a href="/age-calculator.html">Age Calculator</a>
+          <a href="/body-fat-calculator.html">Body Fat Calculator</a>
+          <a href="/water-intake-calculator.html">Water Intake Calculator</a>
+          <a href="/pregnancy-due-date-calculator.html">Pregnancy Due Date</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <button class="nav-cat" type="button">Math &amp; Everyday <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/unit-converter.html">Unit Converter</a>
+          <a href="/percentage-calculator.html">Percentage Calculator</a>
+          <a href="/date-difference-calculator.html">Date Difference</a>
+          <a href="/gpa-calculator.html">GPA Calculator</a>
+          <a href="/tip-calculator.html">Tip Calculator</a>
+          <a href="/scientific-calculator.html">Scientific Calculator</a>
+          <a href="/random-number-generator.html">Random Number Generator</a>
+          <a href="/time-calculator.html">Time Calculator</a>
+          <a href="/fraction-calculator.html">Fraction Calculator</a>
+          <a href="/standard-deviation-calculator.html">Standard Deviation</a>
+          <a href="/password-generator.html">Password Generator</a>
+          <a href="/roman-numeral-converter.html">Roman Numeral Converter</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+
+<div class="wrap">
+  <a class="back" href="/index.html">&larr; All calculators</a>
+  <div class="eyebrow">Health / Diet</div>
+  <h1>Calorie Calculator</h1>
+  <p class="sub">Daily calorie needs based on your goal and activity.</p>
+
+  <div class="panel">
+    <div class="field">
+      <label>Sex</label>
+      <div class="toggle-row">
+        <button type="button" id="male" class="active">Male</button>
+        <button type="button" id="female">Female</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Age <span class="val" id="ageVal">28 yrs</span></label>
+      <input type="range" id="age" min="10" max="90" step="1" value="28">
+    </div>
+    <div class="field">
+      <label>Height <span class="val" id="heightVal">170 cm</span></label>
+      <input type="range" id="height" min="100" max="220" step="1" value="170">
+    </div>
+    <div class="field">
+      <label>Weight <span class="val" id="weightVal">65 kg</span></label>
+      <input type="range" id="weight" min="30" max="180" step="1" value="65">
+    </div>
+    <div class="field">
+      <label>Activity level</label>
+      <select id="activity">
+        <option value="1.2">Sedentary (little exercise)</option>
+        <option value="1.375">Light (1-3 days/week)</option>
+        <option value="1.55" selected>Moderate (3-5 days/week)</option>
+        <option value="1.725">Active (6-7 days/week)</option>
+        <option value="1.9">Very active (physical job/training)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Goal</label>
+      <select id="goal">
+        <option value="0">Maintain weight</option>
+        <option value="-500">Lose weight</option>
+        <option value="500">Gain weight</option>
+      </select>
+    </div>
+
+    <div class="readout">
+      <div class="row"><span class="k">BMR</span><span class="v" id="bmrOut">0</span></div>
+      <div class="row"><span class="k">Daily Calories</span><span class="v main" id="calOut">0</span></div>
+    </div>
+  </div>
+
+  <article class="content-block">
+    <h2>How your calorie needs are calculated</h2>
+    <p>This calculator first estimates your Basal Metabolic Rate (BMR) — the calories your body burns at complete rest — using the Mifflin-St Jeor equation, widely regarded as one of the more accurate BMR formulas. It then multiplies BMR by an activity factor to estimate your Total Daily Energy Expenditure (TDEE), the calories you burn in a typical day including movement and exercise.</p>
+
+    <h2>Choosing the right activity level</h2>
+    <p>Be honest about your activity level — overestimating it is one of the most common reasons calorie targets don't lead to expected results. "Moderate activity" means structured exercise 3-5 days a week, not just an active job or occasional walks.</p>
+
+    <h2>Calorie deficit and surplus for weight goals</h2>
+    <p>A deficit of about 500 calories/day is a commonly used target for gradual weight loss (roughly 0.5kg/week), while a similar surplus supports gradual weight gain. Very large deficits or surpluses are generally not sustainable or healthy long-term.</p>
+
+    <h2>Frequently asked questions</h2>
+    <p><strong>Is this accurate for everyone?</strong> It's a population-average estimate — individual metabolism can vary by 10-15% due to genetics, muscle mass, and other factors. Use it as a starting point and adjust based on real-world results.</p>
+    <p><strong>Should I eat back exercise calories?</strong> The activity multiplier already accounts for regular exercise, so you generally don't need to add calories back for workouts already reflected in your activity level.</p>
+  </article>
+</div>
+
+<footer>calculators — calorie</footer>
+
+<script>
+  let sex = 'male';
+  const maleBtn = document.getElementById('male');
+  const femaleBtn = document.getElementById('female');
+  const age = document.getElementById('age');
+  const height = document.getElementById('height');
+  const weight = document.getElementById('weight');
+  const activity = document.getElementById('activity');
+  const goal = document.getElementById('goal');
+  const ageVal = document.getElementById('ageVal');
+  const heightVal = document.getElementById('heightVal');
+  const weightVal = document.getElementById('weightVal');
+  const bmrOut = document.getElementById('bmrOut');
+  const calOut = document.getElementById('calOut');
+
+  maleBtn.addEventListener('click', () => { sex='male'; maleBtn.classList.add('active'); femaleBtn.classList.remove('active'); calculate(); });
+  femaleBtn.addEventListener('click', () => { sex='female'; femaleBtn.classList.add('active'); maleBtn.classList.remove('active'); calculate(); });
+
+  function calculate(){
+    const a = parseFloat(age.value);
+    const h = parseFloat(height.value);
+    const w = parseFloat(weight.value);
+    const act = parseFloat(activity.value);
+    const g = parseFloat(goal.value);
+
+    let bmr;
+    if (sex === 'male'){
+      bmr = 10*w + 6.25*h - 5*a + 5;
+    } else {
+      bmr = 10*w + 6.25*h - 5*a - 161;
+    }
+    const tdee = bmr * act + g;
+
+    ageVal.textContent = a + ' yrs';
+    heightVal.textContent = h + ' cm';
+    weightVal.textContent = w + ' kg';
+    bmrOut.textContent = Math.round(bmr) + ' kcal';
+    calOut.textContent = Math.round(tdee) + ' kcal';
+  }
+
+  [age, height, weight, activity, goal].forEach(el => el.addEventListener('input', calculate));
+  calculate();
+</script>
+<div style="margin:28px auto 0;max-width:460px;text-align:center;">
+<script async="async" data-cfasync="false" src="https://annoyingnightmareedit.com/df18a40bc41385d8eb1020b93064ccdf/invoke.js"></script>
+<div id="container-df18a40bc41385d8eb1020b93064ccdf"></div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  document.querySelectorAll("input[type=range]").forEach(function(slider){
+    var wrapper = document.createElement("div");
+    wrapper.className = "slider-row";
+    slider.parentNode.insertBefore(wrapper, slider);
+    wrapper.appendChild(slider);
+
+    var numInput = document.createElement("input");
+    numInput.type = "number";
+    numInput.className = "manual-input";
+    numInput.value = slider.value;
+    numInput.step = slider.step || 1;
+    wrapper.appendChild(numInput);
+
+    numInput.addEventListener("input", function(){
+      var val = parseFloat(numInput.value);
+      if (isNaN(val)) return;
+      var min = parseFloat(slider.min);
+      var max = parseFloat(slider.max);
+      if (val < min) val = min;
+      if (val > max) val = max;
+      slider.value = val;
+      slider.dispatchEvent(new Event("input", {bubbles:true}));
+    });
+
+    slider.addEventListener("input", function(){
+      numInput.value = slider.value;
+    });
+  });
+});
+</script>
+
+
+
+<script>
+(function(){
+  var toggle = document.getElementById('navToggle');
+  var menu = document.getElementById('navMenu');
+  if(toggle){
+    toggle.addEventListener('click', function(){ menu.classList.toggle('open'); });
+  }
+  document.querySelectorAll('.nav-cat').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(window.innerWidth < 760){
+        var drop = btn.nextElementSibling;
+        drop.classList.toggle('open');
+        btn.classList.toggle('open');
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

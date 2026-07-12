@@ -3,35 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Income Tax Calculator (Pakistan, India, USA, UK) — Calculators</title>
+<title>Income Tax Calculator (Detailed) — Pakistan, India, USA, UK — Calculators</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{--bg:#12161d;--surface:#1b212b;--surface-2:#232a35;--line:#2c3542;--text:#e9ecf1;--muted:#8b96a5;--accent:#e8a33d;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;padding:32px 16px 60px;}
-  .wrap{max-width:460px;margin:0 auto;}
+  .wrap{max-width:480px;margin:0 auto;}
   .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
   .eyebrow::before{content:'';width:16px;height:1px;background:var(--accent);}
   h1{font-family:'Sora',sans-serif;font-weight:800;font-size:26px;margin-bottom:6px;letter-spacing:-0.01em;}
   .sub{color:var(--muted);font-size:14px;margin-bottom:28px;}
   .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;}
+  .section-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin:22px 0 14px;padding-top:14px;border-top:1px dashed var(--line);}
+  .section-label:first-child{margin-top:0;padding-top:0;border-top:none;}
   .toggle-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
+  .toggle-row.three{grid-template-columns:1fr 1fr 1fr;}
   .toggle-row button{padding:10px 6px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;}
   .toggle-row button.active{background:var(--accent);color:#0d1015;border-color:var(--accent);font-weight:600;}
-  .field{margin-bottom:20px;}
+  .field{margin-bottom:18px;}
   .field label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:8px;}
   .field label .val{font-family:'IBM Plex Mono',monospace;color:var(--text);font-size:14px;font-weight:600;}
   input[type=range]{width:100%;height:4px;border-radius:2px;background:var(--line);appearance:none;-webkit-appearance:none;outline:none;}
   input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 0 4px rgba(232,163,61,.18);}
   input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;border:none;box-shadow:0 0 0 4px rgba(232,163,61,.18);}
   select{width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:10px 12px;border-radius:8px;outline:none;}
+  .country-fields{display:none;}
+  .country-fields.active{display:block;}
   .readout{margin-top:8px;background:linear-gradient(180deg,#0d1015,#14181f);border:1px solid var(--line);border-radius:12px;padding:22px 20px;box-shadow:inset 0 2px 6px rgba(0,0,0,.4);}
-  .readout .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;}
+  .readout .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px;}
   .readout .row:last-child{margin-bottom:0;padding-top:12px;border-top:1px dashed var(--line);}
   .readout .k{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
-  .readout .v{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#c9cfd8;}
-  .readout .v.main{font-size:28px;color:var(--accent);text-shadow:0 0 16px rgba(232,163,61,.35);}
+  .readout .v{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:#c9cfd8;}
+  .readout .v.main{font-size:26px;color:var(--accent);text-shadow:0 0 16px rgba(232,163,61,.35);}
   .note{font-size:12px;color:var(--muted);margin-top:16px;line-height:1.5;}
   footer{text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;margin-top:36px;}
   a.back{color:var(--muted);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:24px;}
@@ -44,23 +49,12 @@
   .content-block table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12px;}
   .content-block th, .content-block td{padding:7px;text-align:left;border-bottom:1px solid var(--line);color:var(--muted);}
   .content-block th{color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;}
-  .slider-row{display:flex;align-items:center;gap:10px;}
-  .slider-row input[type=range]{flex:1;}
-  .manual-input{
-    width:84px;flex-shrink:0;
-    background:var(--surface-2);border:1px solid var(--line);color:var(--text);
-    font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px 8px;border-radius:6px;outline:none;text-align:right;
-  }
-  .manual-input::-webkit-outer-spin-button, .manual-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
-  .manual-input{-moz-appearance:textfield;}
 </style>
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
-
-
 
 <style>
   .site-nav{position:sticky;top:0;z-index:100;background:rgba(18,22,29,0.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--line,#2c3542);font-family:'Inter',sans-serif;}
@@ -143,13 +137,11 @@
   </div>
 </nav>
 
-
-
 <div class="wrap">
   <a class="back" href="/index.html">&larr; All calculators</a>
   <div class="eyebrow">Finance / Tax</div>
   <h1>Income Tax Calculator</h1>
-  <p class="sub">Pakistan, India, USA, and UK — pick your country.</p>
+  <p class="sub">Detailed estimate — Pakistan, India, USA, UK.</p>
 
   <div class="panel">
     <div class="toggle-row">
@@ -159,15 +151,117 @@
       <button type="button" id="uk">🇬🇧 UK</button>
     </div>
 
+    <div class="section-label">Income</div>
     <div class="field">
-      <label>Annual income <span class="val" id="incVal">PKR 12,00,000</span></label>
+      <label>Annual salary/income <span class="val" id="incVal">PKR 12,00,000</span></label>
       <input type="range" id="income" min="0" max="20000000" step="10000" value="1200000">
+    </div>
+
+    <!-- Pakistan fields -->
+    <div class="country-fields active" id="fields-pk">
+      <div class="section-label">Deductions</div>
+      <div class="field">
+        <label>Zakat paid (deductible) <span class="val" id="pkZakatVal">PKR 0</span></label>
+        <input type="range" id="pkZakat" min="0" max="1000000" step="5000" value="0">
+      </div>
+      <div class="field">
+        <label>Approved pension / investment credit <span class="val" id="pkInvestVal">PKR 0</span></label>
+        <input type="range" id="pkInvest" min="0" max="2000000" step="10000" value="0">
+      </div>
+    </div>
+
+    <!-- India fields -->
+    <div class="country-fields" id="fields-in">
+      <div class="section-label">Tax regime</div>
+      <div class="toggle-row">
+        <button type="button" id="inNewBtn" class="active">New Regime</button>
+        <button type="button" id="inOldBtn">Old Regime</button>
+      </div>
+      <div id="inOldFields" style="display:none;">
+        <div class="section-label">Deductions (Old Regime)</div>
+        <div class="field">
+          <label>Section 80C (up to ₹1.5L) <span class="val" id="in80cVal">₹ 0</span></label>
+          <input type="range" id="in80c" min="0" max="150000" step="5000" value="0">
+        </div>
+        <div class="field">
+          <label>Section 80D — health insurance <span class="val" id="in80dVal">₹ 0</span></label>
+          <input type="range" id="in80d" min="0" max="100000" step="5000" value="0">
+        </div>
+        <div class="field">
+          <label>HRA exemption <span class="val" id="inHraVal">₹ 0</span></label>
+          <input type="range" id="inHra" min="0" max="1000000" step="10000" value="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- USA fields -->
+    <div class="country-fields" id="fields-us">
+      <div class="section-label">Filing details</div>
+      <div class="field">
+        <label>Filing status</label>
+        <select id="usFilingStatus">
+          <option value="single">Single</option>
+          <option value="mfj">Married Filing Jointly</option>
+          <option value="mfs">Married Filing Separately</option>
+          <option value="hoh">Head of Household</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Number of dependents <span class="val" id="usDependentsVal">0</span></label>
+        <input type="range" id="usDependents" min="0" max="6" step="1" value="0">
+      </div>
+      <div class="section-label">Pre-tax deductions</div>
+      <div class="field">
+        <label>401(k) contribution <span class="val" id="us401kVal">$ 0</span></label>
+        <input type="range" id="us401k" min="0" max="23500" step="500" value="0">
+      </div>
+      <div class="field">
+        <label>Deduction type</label>
+        <div class="toggle-row">
+          <button type="button" id="usStdBtn" class="active">Standard</button>
+          <button type="button" id="usItemBtn">Itemized</button>
+        </div>
+      </div>
+      <div id="usItemFields" style="display:none;">
+        <div class="field">
+          <label>Mortgage interest <span class="val" id="usMortgageVal">$ 0</span></label>
+          <input type="range" id="usMortgage" min="0" max="40000" step="500" value="0">
+        </div>
+        <div class="field">
+          <label>State/local tax (SALT, capped $10,000) <span class="val" id="usSaltVal">$ 0</span></label>
+          <input type="range" id="usSalt" min="0" max="10000" step="500" value="0">
+        </div>
+        <div class="field">
+          <label>Charitable donations <span class="val" id="usCharityVal">$ 0</span></label>
+          <input type="range" id="usCharity" min="0" max="20000" step="500" value="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- UK fields -->
+    <div class="country-fields" id="fields-uk">
+      <div class="section-label">Pre-tax deductions</div>
+      <div class="field">
+        <label>Pension contribution <span class="val" id="ukPensionVal">£ 0</span></label>
+        <input type="range" id="ukPension" min="0" max="40000" step="500" value="0">
+      </div>
+      <div class="field">
+        <label>Student loan plan</label>
+        <select id="ukStudentLoan">
+          <option value="none">No student loan</option>
+          <option value="plan1">Plan 1</option>
+          <option value="plan2">Plan 2</option>
+          <option value="plan4">Plan 4 (Scotland)</option>
+          <option value="postgrad">Postgraduate Loan</option>
+        </select>
+      </div>
     </div>
 
     <div class="readout">
       <div class="row"><span class="k">Taxable Income</span><span class="v" id="taxableOut">0</span></div>
-      <div class="row"><span class="k">Total Tax</span><span class="v main" id="taxOut">0</span></div>
-      <div class="row"><span class="k">In-hand (Annual)</span><span class="v" id="inhandOut">0</span></div>
+      <div class="row"><span class="k">Income Tax</span><span class="v" id="taxOut">0</span></div>
+      <div class="row" id="extraDeductRow" style="display:none;"><span class="k" id="extraDeductLabel">Other Deductions</span><span class="v" id="extraDeductOut">0</span></div>
+      <div class="row"><span class="k">Total Take-Home (Annual)</span><span class="v main" id="inhandOut">0</span></div>
     </div>
     <p class="note" id="regimeNote">Pakistan: FBR salaried slabs for Tax Year 2027 (FY 2026-27). Estimate only.</p>
   </div>
@@ -185,18 +279,19 @@
       <tr><td>5,600,000 – 7,000,000</td><td>976,000 + 32% above 5.6M</td></tr>
       <tr><td>Above 7,000,000</td><td>1,424,000 + 35% above 7M</td></tr>
     </table>
+    <p>Zakat paid and approved pension/investment contributions reduce your taxable income in this calculator, as they do under Pakistani tax law within prescribed limits.</p>
 
-    <h2>India new tax regime — key points</h2>
-    <p>Standard deduction ₹75,000, rebate under Section 87A makes tax nil up to ₹7,00,000 taxable income, plus 4% health and education cess.</p>
+    <h2>India: Old vs New tax regime</h2>
+    <p>The New Regime offers lower rates but no deductions (except the ₹75,000 standard deduction). The Old Regime has higher rates but allows deductions like 80C (investments), 80D (health insurance), and HRA (house rent exemption) — often better for those with significant eligible investments or rent payments.</p>
 
-    <h2>USA federal brackets — 2026 (single filer)</h2>
-    <p>Seven brackets from 10% to 37%, with a $16,100 standard deduction for single filers. Note: this covers federal tax only — state income tax is separate and varies (some states like Texas and Florida have none).</p>
+    <h2>USA: Filing status and deductions</h2>
+    <p>Filing status changes your tax brackets and standard deduction amount. Itemizing (mortgage interest, SALT, charitable donations) only helps if your itemized total exceeds the standard deduction — this calculator uses whichever you select. Dependents may qualify for the Child Tax Credit (~$2,000 each), applied as a direct reduction to tax owed.</p>
 
-    <h2>UK income tax — 2026/27</h2>
-    <p>Personal Allowance of £12,570 is tax-free, then 20% basic rate to £50,270, 40% higher rate to £125,140, and 45% above that. This covers England, Wales &amp; Northern Ireland rates — Scotland uses different bands. National Insurance is separate and not included here.</p>
+    <h2>UK: Pension and student loans</h2>
+    <p>Pension contributions reduce your taxable income. Student loan repayments are calculated as a percentage of income above a plan-specific threshold, deducted separately from income tax — shown here as an additional deduction from take-home pay.</p>
 
     <h2>Frequently asked questions</h2>
-    <p><strong>Is this accurate for filing?</strong> It's a close estimate using official slabs, but doesn't include all deductions, credits, or region-specific rules (like Zakat in Pakistan, state tax in the US, or Scottish rates in the UK). Use it for planning, not filing.</p>
+    <p><strong>Is this accurate for filing?</strong> It's a close estimate using official slabs and major deductions, but doesn't cover every credit or edge case. Use it for planning, not for actual filing — consult a tax professional or official calculator for that.</p>
   </article>
 </div>
 
@@ -211,125 +306,198 @@
   const taxOut = document.getElementById('taxOut');
   const inhandOut = document.getElementById('inhandOut');
   const regimeNote = document.getElementById('regimeNote');
+  const extraDeductRow = document.getElementById('extraDeductRow');
+  const extraDeductLabel = document.getElementById('extraDeductLabel');
+  const extraDeductOut = document.getElementById('extraDeductOut');
 
   const configs = {
-    pk: { symbol: 'PKR ', locale: 'en-IN', max: 20000000, step: 10000, default: 1200000,
-      note: 'Pakistan: FBR salaried slabs for Tax Year 2027 (FY 2026-27). Estimate only.' },
-    in: { symbol: '₹ ', locale: 'en-IN', max: 10000000, step: 10000, default: 1200000,
-      note: 'India: New tax regime, ₹75,000 standard deduction, 4% cess included. Estimate only.' },
-    us: { symbol: '$ ', locale: 'en-US', max: 1000000, step: 1000, default: 80000,
-      note: 'USA: 2026 federal brackets, single filer, $16,100 standard deduction. State tax not included.' },
-    uk: { symbol: '£ ', locale: 'en-GB', max: 500000, step: 1000, default: 45000,
-      note: 'UK: 2026/27 rates for England, Wales & NI. National Insurance not included.' }
+    pk: { symbol: 'PKR ', locale: 'en-IN', max: 20000000, step: 10000, default: 1200000, note: 'Pakistan: FBR salaried slabs, Tax Year 2027. Estimate only.' },
+    in: { symbol: '₹ ', locale: 'en-IN', max: 10000000, step: 10000, default: 1200000, note: 'India: pick New or Old regime above. Estimate only.' },
+    us: { symbol: '$ ', locale: 'en-US', max: 1000000, step: 1000, default: 80000, note: 'USA: 2026 federal brackets. State tax not included.' },
+    uk: { symbol: '£ ', locale: 'en-GB', max: 500000, step: 1000, default: 45000, note: 'UK: 2026/27 rates, England/Wales/NI. NI contributions not included.' }
   };
+
+  // Pakistan fields
+  const pkZakat = document.getElementById('pkZakat'), pkZakatVal = document.getElementById('pkZakatVal');
+  const pkInvest = document.getElementById('pkInvest'), pkInvestVal = document.getElementById('pkInvestVal');
+
+  // India fields
+  let inRegime = 'new';
+  const inNewBtn = document.getElementById('inNewBtn'), inOldBtn = document.getElementById('inOldBtn');
+  const inOldFields = document.getElementById('inOldFields');
+  const in80c = document.getElementById('in80c'), in80cVal = document.getElementById('in80cVal');
+  const in80d = document.getElementById('in80d'), in80dVal = document.getElementById('in80dVal');
+  const inHra = document.getElementById('inHra'), inHraVal = document.getElementById('inHraVal');
+
+  // USA fields
+  const usFilingStatus = document.getElementById('usFilingStatus');
+  const usDependents = document.getElementById('usDependents'), usDependentsVal = document.getElementById('usDependentsVal');
+  const us401k = document.getElementById('us401k'), us401kVal = document.getElementById('us401kVal');
+  let usDeductionType = 'standard';
+  const usStdBtn = document.getElementById('usStdBtn'), usItemBtn = document.getElementById('usItemBtn');
+  const usItemFields = document.getElementById('usItemFields');
+  const usMortgage = document.getElementById('usMortgage'), usMortgageVal = document.getElementById('usMortgageVal');
+  const usSalt = document.getElementById('usSalt'), usSaltVal = document.getElementById('usSaltVal');
+  const usCharity = document.getElementById('usCharity'), usCharityVal = document.getElementById('usCharityVal');
+
+  // UK fields
+  const ukPension = document.getElementById('ukPension'), ukPensionVal = document.getElementById('ukPensionVal');
+  const ukStudentLoan = document.getElementById('ukStudentLoan');
 
   function switchCountry(newCountry){
     country = newCountry;
     Object.keys(buttons).forEach(k => buttons[k].classList.toggle('active', k === newCountry));
+    document.querySelectorAll('.country-fields').forEach(el => el.classList.remove('active'));
+    document.getElementById('fields-' + newCountry).classList.add('active');
     const cfg = configs[newCountry];
-    income.max = cfg.max;
-    income.step = cfg.step;
-    income.value = cfg.default;
+    income.max = cfg.max; income.step = cfg.step; income.value = cfg.default;
     regimeNote.textContent = cfg.note;
     calculate();
   }
-
   Object.keys(buttons).forEach(k => buttons[k].addEventListener('click', () => switchCountry(k)));
 
-  function format(num){
-    const cfg = configs[country];
+  inNewBtn.addEventListener('click', () => { inRegime='new'; inNewBtn.classList.add('active'); inOldBtn.classList.remove('active'); inOldFields.style.display='none'; calculate(); });
+  inOldBtn.addEventListener('click', () => { inRegime='old'; inOldBtn.classList.add('active'); inNewBtn.classList.remove('active'); inOldFields.style.display='block'; calculate(); });
+
+  usStdBtn.addEventListener('click', () => { usDeductionType='standard'; usStdBtn.classList.add('active'); usItemBtn.classList.remove('active'); usItemFields.style.display='none'; calculate(); });
+  usItemBtn.addEventListener('click', () => { usDeductionType='itemized'; usItemBtn.classList.add('active'); usStdBtn.classList.remove('active'); usItemFields.style.display='block'; calculate(); });
+
+  function format(num, cur){
+    const cfg = configs[cur || country];
     return cfg.symbol + Math.round(num).toLocaleString(cfg.locale);
   }
 
   function pkTax(taxable){
     const slabs = [[600000,0],[600000,0.01],[1000000,0.11],[1000000,0.20],[900000,0.25],[1500000,0.29],[1400000,0.32],[Infinity,0.35]];
     let remaining = taxable, tax = 0;
-    for (const [width, rate] of slabs){ const chunk = Math.min(remaining, width); if (chunk<=0) break; tax += chunk*rate; remaining -= chunk; }
+    for (const [w,rt] of slabs){ const c=Math.min(remaining,w); if(c<=0) break; tax+=c*rt; remaining-=c; }
     return tax;
   }
 
-  function inTax(gross){
+  function inTaxNew(gross){
     const taxable = Math.max(0, gross - 75000);
     const slabs = [[400000,0],[400000,0.05],[400000,0.10],[400000,0.15],[400000,0.20],[400000,0.25],[Infinity,0.30]];
     let remaining = taxable, tax = 0;
-    for (const [width, rate] of slabs){ const chunk = Math.min(remaining, width); if (chunk<=0) break; tax += chunk*rate; remaining -= chunk; }
+    for (const [w,rt] of slabs){ const c=Math.min(remaining,w); if(c<=0) break; tax+=c*rt; remaining-=c; }
     if (taxable <= 700000) tax = 0;
-    return { taxable, tax: tax * 1.04 };
+    return { taxable, tax: tax*1.04 };
   }
 
-  function usTax(gross){
-    const taxable = Math.max(0, gross - 16100);
-    const slabs = [[12400,0.10],[38000,0.12],[55300,0.22],[96075,0.24],[54450,0.32],[384375,0.35],[Infinity,0.37]];
+  function inTaxOld(gross, deductions){
+    const taxable = Math.max(0, gross - 50000 - deductions);
+    const slabs = [[250000,0],[250000,0.05],[500000,0.20],[Infinity,0.30]];
     let remaining = taxable, tax = 0;
-    for (const [width, rate] of slabs){ const chunk = Math.min(remaining, width); if (chunk<=0) break; tax += chunk*rate; remaining -= chunk; }
+    for (const [w,rt] of slabs){ const c=Math.min(remaining,w); if(c<=0) break; tax+=c*rt; remaining-=c; }
+    return { taxable, tax: tax*1.04 };
+  }
+
+  function usStdDeduction(status){
+    return { single: 16100, mfj: 32200, mfs: 16100, hoh: 24150 }[status];
+  }
+
+  function usTax(gross, status, dependents, contrib401k, deductionType, itemTotal){
+    const afterContrib = Math.max(0, gross - contrib401k);
+    const deduction = deductionType === 'itemized' ? Math.max(itemTotal, usStdDeduction(status)) : usStdDeduction(status);
+    const taxable = Math.max(0, afterContrib - deduction);
+    // Single filer brackets, approximated similarly for other statuses (simplified)
+    const bracketMultiplier = status === 'mfj' ? 2 : 1;
+    const slabs = [[12400,0.10],[38000,0.12],[55300,0.22],[96075,0.24],[54450,0.32],[384375,0.35],[Infinity,0.37]].map(([w,r]) => [w*bracketMultiplier, r]);
+    let remaining = taxable, tax = 0;
+    for (const [w,rt] of slabs){ const c=Math.min(remaining,w); if(c<=0) break; tax+=c*rt; remaining-=c; }
+    const childCredit = dependents * 2000;
+    tax = Math.max(0, tax - childCredit);
     return { taxable, tax };
   }
 
-  function ukTax(gross){
-    const pa = gross > 100000 ? Math.max(0, 12570 - (gross-100000)/2) : 12570;
-    const taxable = Math.max(0, gross - pa);
+  function ukTax(gross, pensionContrib, studentLoanPlan){
+    const afterPension = Math.max(0, gross - pensionContrib);
+    const pa = afterPension > 100000 ? Math.max(0, 12570 - (afterPension-100000)/2) : 12570;
+    const taxable = Math.max(0, afterPension - pa);
     const slabs = [[37700,0.20],[74870,0.40],[Infinity,0.45]];
     let remaining = taxable, tax = 0;
-    for (const [width, rate] of slabs){ const chunk = Math.min(remaining, width); if (chunk<=0) break; tax += chunk*rate; remaining -= chunk; }
-    return { taxable, tax };
+    for (const [w,rt] of slabs){ const c=Math.min(remaining,w); if(c<=0) break; tax+=c*rt; remaining-=c; }
+
+    let studentLoan = 0;
+    const thresholds = { plan1: 26065, plan2: 28470, plan4: 32745, postgrad: 21000 };
+    const rateLoan = studentLoanPlan === 'postgrad' ? 0.06 : 0.09;
+    if (studentLoanPlan !== 'none' && afterPension > thresholds[studentLoanPlan]){
+      studentLoan = (afterPension - thresholds[studentLoanPlan]) * rateLoan;
+    }
+    return { taxable, tax, studentLoan };
   }
 
   function calculate(){
     const gross = parseFloat(income.value);
     incVal.textContent = format(gross);
-    let taxable, tax;
+    extraDeductRow.style.display = 'none';
 
-    if (country === 'pk'){ taxable = gross; tax = pkTax(gross); }
-    else if (country === 'in'){ const r = inTax(gross); taxable = r.taxable; tax = r.tax; }
-    else if (country === 'us'){ const r = usTax(gross); taxable = r.taxable; tax = r.tax; }
-    else { const r = ukTax(gross); taxable = r.taxable; tax = r.tax; }
+    if (country === 'pk'){
+      const zakat = parseFloat(pkZakat.value);
+      const invest = parseFloat(pkInvest.value);
+      pkZakatVal.textContent = format(zakat);
+      pkInvestVal.textContent = format(invest);
+      const taxable = Math.max(0, gross - zakat - invest);
+      const tax = pkTax(taxable);
+      taxableOut.textContent = format(taxable);
+      taxOut.textContent = format(tax);
+      inhandOut.textContent = format(gross - tax - zakat);
 
-    taxableOut.textContent = format(taxable);
-    taxOut.textContent = format(tax);
-    inhandOut.textContent = format(gross - tax);
+    } else if (country === 'in'){
+      let result, deductions = 0;
+      if (inRegime === 'new'){
+        result = inTaxNew(gross);
+      } else {
+        deductions = parseFloat(in80c.value) + parseFloat(in80d.value) + parseFloat(inHra.value);
+        in80cVal.textContent = format(parseFloat(in80c.value));
+        in80dVal.textContent = format(parseFloat(in80d.value));
+        inHraVal.textContent = format(parseFloat(inHra.value));
+        result = inTaxOld(gross, deductions);
+      }
+      taxableOut.textContent = format(result.taxable);
+      taxOut.textContent = format(result.tax);
+      inhandOut.textContent = format(gross - result.tax);
+
+    } else if (country === 'us'){
+      const status = usFilingStatus.value;
+      const dependents = parseInt(usDependents.value);
+      const contrib401k = parseFloat(us401k.value);
+      usDependentsVal.textContent = dependents;
+      us401kVal.textContent = format(contrib401k);
+      const itemTotal = parseFloat(usMortgage.value) + parseFloat(usSalt.value) + parseFloat(usCharity.value);
+      usMortgageVal.textContent = format(parseFloat(usMortgage.value));
+      usSaltVal.textContent = format(parseFloat(usSalt.value));
+      usCharityVal.textContent = format(parseFloat(usCharity.value));
+
+      const result = usTax(gross, status, dependents, contrib401k, usDeductionType, itemTotal);
+      taxableOut.textContent = format(result.taxable);
+      taxOut.textContent = format(result.tax);
+      inhandOut.textContent = format(gross - result.tax - contrib401k);
+
+    } else if (country === 'uk'){
+      const pensionContrib = parseFloat(ukPension.value);
+      ukPensionVal.textContent = format(pensionContrib);
+      const result = ukTax(gross, pensionContrib, ukStudentLoan.value);
+      taxableOut.textContent = format(result.taxable);
+      taxOut.textContent = format(result.tax);
+      if (result.studentLoan > 0){
+        extraDeductRow.style.display = 'flex';
+        extraDeductLabel.textContent = 'Student Loan Repayment';
+        extraDeductOut.textContent = format(result.studentLoan);
+      }
+      inhandOut.textContent = format(gross - result.tax - pensionContrib - result.studentLoan);
+    }
   }
 
-  income.addEventListener('input', calculate);
+  [income, pkZakat, pkInvest, in80c, in80d, inHra, usFilingStatus, usDependents, us401k, usMortgage, usSalt, usCharity, ukPension, ukStudentLoan].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
   calculate();
 </script>
 <div style="margin:28px auto 0;max-width:460px;text-align:center;">
 <script async="async" data-cfasync="false" src="https://annoyingnightmareedit.com/df18a40bc41385d8eb1020b93064ccdf/invoke.js"></script>
 <div id="container-df18a40bc41385d8eb1020b93064ccdf"></div>
 </div>
-<script>
-document.addEventListener("DOMContentLoaded", function(){
-  document.querySelectorAll("input[type=range]").forEach(function(slider){
-    var wrapper = document.createElement("div");
-    wrapper.className = "slider-row";
-    slider.parentNode.insertBefore(wrapper, slider);
-    wrapper.appendChild(slider);
-
-    var numInput = document.createElement("input");
-    numInput.type = "number";
-    numInput.className = "manual-input";
-    numInput.value = slider.value;
-    numInput.step = slider.step || 1;
-    wrapper.appendChild(numInput);
-
-    numInput.addEventListener("input", function(){
-      var val = parseFloat(numInput.value);
-      if (isNaN(val)) return;
-      var min = parseFloat(slider.min);
-      var max = parseFloat(slider.max);
-      if (val < min) val = min;
-      if (val > max) val = max;
-      slider.value = val;
-      slider.dispatchEvent(new Event("input", {bubbles:true}));
-    });
-
-    slider.addEventListener("input", function(){
-      numInput.value = slider.value;
-    });
-  });
-});
-</script>
-
-
 
 <script>
 (function(){

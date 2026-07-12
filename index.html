@@ -186,12 +186,35 @@
   .home-calc-link{margin-top:14px;font-size:12px;color:var(--muted);text-align:center;}
   .home-calc-link a{color:var(--amber);text-decoration:none;}
   .home-calc-link a:hover{text-decoration:underline;}
+
+  .search-section{padding:28px 0 8px;}
+  .search-box{
+    position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    display:flex;align-items:center;padding:4px 6px;
+  }
+  .search-icon{padding:0 10px;font-size:15px;opacity:.6;}
+  .search-box input{
+    flex:1;background:none;border:none;outline:none;color:var(--text);
+    font-family:'Inter',sans-serif;font-size:15px;padding:12px 6px;
+  }
+  .search-box input::placeholder{color:var(--muted);}
+  .search-box:focus-within{border-color:var(--amber);}
+  .stats-bar{
+    display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+    margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);
+  }
+  .stats-bar strong{color:var(--amber);}
+  .cat-popular .card{border-color:#3a3220;}
+  .no-results{display:none;text-align:center;color:var(--muted);font-size:14px;padding:40px 20px;}
+  .no-results.show{display:block;}
 </style>
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+
+
 
 
 
@@ -275,6 +298,8 @@
     </div>
   </div>
 </nav>
+
+
 
 
 
@@ -370,10 +395,60 @@
 </header>
 
 <div class="wrap">
+  <div class="search-section">
+    <div class="search-box">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="calcSearch" placeholder="Search calculators... e.g. EMI, BMI, GPA, Tip">
+    </div>
+    <div class="stats-bar">
+      <span><strong id="totalCount">25</strong> free tools</span>
+      <span>&middot;</span>
+      <span>No signup</span>
+      <span>&middot;</span>
+      <span>Mobile friendly</span>
+    </div>
+  </div>
+
   <section class="categories">
+    <div class="cat-head">
+      <h2>&#11088; Popular</h2>
+      <span class="count">Most used</span>
+    </div>
+    <div class="grid cat-popular">
+      <a class="card" href="/emi-loan-calculator.html">
+        <span class="tag" style="color:var(--amber);">Loan</span>
+        <h3>EMI / Mortgage Calculator</h3>
+        <p>Monthly instalment, full breakdown</p>
+      </a>
+      <a class="card" href="/bmi-calculator.html">
+        <span class="tag" style="color:#4fd1c5;">Body</span>
+        <h3>BMI Calculator</h3>
+        <p>Body mass index with healthy range</p>
+      </a>
+      <a class="card" href="/percentage-calculator.html">
+        <span class="tag" style="color:#9b8cf2;">Percent</span>
+        <h3>Percentage Calculator</h3>
+        <p>Increase, decrease, quick math</p>
+      </a>
+      <a class="card" href="/gpa-calculator.html">
+        <span class="tag" style="color:#9b8cf2;">Education</span>
+        <h3>GPA Calculator</h3>
+        <p>Weighted GPA from your grades</p>
+      </a>
+      <a class="card" href="/age-calculator.html">
+        <span class="tag" style="color:#4fd1c5;">Age</span>
+        <h3>Age Calculator</h3>
+        <p>Exact age in years, months, days</p>
+      </a>
+      <a class="card" href="/tip-calculator.html">
+        <span class="tag" style="color:#9b8cf2;">Everyday</span>
+        <h3>Tip Calculator</h3>
+        <p>Split the bill with no math</p>
+      </a>
+    </div>
 
     <div class="cat-head">
-      <h2>Finance</h2>
+      <h2>&#128176; Finance</h2>
       <span class="count">07 tools</span>
     </div>
     <div class="grid cat-finance">
@@ -415,7 +490,7 @@
     </div>
 
     <div class="cat-head">
-      <h2>Health</h2>
+      <h2>&#10084;&#65039; Health &amp; Fitness</h2>
       <span class="count">06 tools</span>
     </div>
     <div class="grid cat-health">
@@ -452,7 +527,7 @@
     </div>
 
     <div class="cat-head">
-      <h2>Math &amp; Everyday</h2>
+      <h2>&#128290; Math &amp; Everyday</h2>
       <span class="count">12 tools</span>
     </div>
     <div class="grid cat-math">
@@ -518,6 +593,8 @@
       </a>
     </div>
 
+    <p class="no-results" id="noResults">No calculators match your search. Try a different term.</p>
+
   </section>
 </div>
 
@@ -538,24 +615,6 @@
 
 
 
-<script>
-(function(){
-  var toggle = document.getElementById('navToggle');
-  var menu = document.getElementById('navMenu');
-  if(toggle){
-    toggle.addEventListener('click', function(){ menu.classList.toggle('open'); });
-  }
-  document.querySelectorAll('.nav-cat').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      if(window.innerWidth < 760){
-        var drop = btn.nextElementSibling;
-        drop.classList.toggle('open');
-        btn.classList.toggle('open');
-      }
-    });
-  });
-})();
-</script>
 
 <script>
 (function(){
@@ -652,6 +711,57 @@
 
   gridSimple.addEventListener('click', handleGrid);
   gridSci.addEventListener('click', handleGrid);
+})();
+</script>
+
+
+<script>
+(function(){
+  var toggle = document.getElementById('navToggle');
+  var menu = document.getElementById('navMenu');
+  if(toggle){
+    toggle.addEventListener('click', function(){ menu.classList.toggle('open'); });
+  }
+  document.querySelectorAll('.nav-cat').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(window.innerWidth < 760){
+        var drop = btn.nextElementSibling;
+        drop.classList.toggle('open');
+        btn.classList.toggle('open');
+      }
+    });
+  });
+})();
+</script>
+
+<script>
+(function(){
+  const searchInput = document.getElementById('calcSearch');
+  const noResults = document.getElementById('noResults');
+  if (!searchInput) return;
+
+  const catHeads = document.querySelectorAll('.cat-head');
+  const grids = document.querySelectorAll('.categories .grid');
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    let anyVisible = false;
+
+    grids.forEach((grid, i) => {
+      let groupHasMatch = false;
+      grid.querySelectorAll('.card').forEach(card => {
+        const title = card.querySelector('h3').textContent.toLowerCase();
+        const desc = card.querySelector('p').textContent.toLowerCase();
+        const match = !q || title.includes(q) || desc.includes(q);
+        card.style.display = match ? 'block' : 'none';
+        if (match) { groupHasMatch = true; anyVisible = true; }
+      });
+      if (catHeads[i]) catHeads[i].style.display = groupHasMatch ? 'flex' : 'none';
+      grid.style.display = groupHasMatch ? 'grid' : 'none';
+    });
+
+    noResults.classList.toggle('show', !anyVisible);
+  });
 })();
 </script>
 

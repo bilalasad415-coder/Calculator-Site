@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EMI / Mortgage Loan Calculator (Detailed) — Calculators</title>
+<title>EMI / Mortgage Loan Calculator (Detailed with Amortization) — Calculators</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#12161d;--surface:#1b212b;--surface-2:#232a35;--line:#2c3542;--text:#e9ecf1;--muted:#8b96a5;--amber:#e8a33d;}
+  :root{--bg:#12161d;--surface:#1b212b;--surface-2:#232a35;--line:#2c3542;--text:#e9ecf1;--muted:#8b96a5;--amber:#e8a33d;--teal:#4fd1c5;--violet:#9b8cf2;--red:#e65a5a;--grey:#6b7280;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;padding:32px 16px 60px;}
   .wrap{max-width:480px;margin:0 auto;}
@@ -25,6 +25,7 @@
   input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--amber);cursor:pointer;box-shadow:0 0 0 4px rgba(232,163,61,.18);}
   input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--amber);cursor:pointer;border:none;box-shadow:0 0 0 4px rgba(232,163,61,.18);}
   select{width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:10px 12px;border-radius:8px;outline:none;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   .currency-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
   .currency-row .lbl{font-size:13px;color:var(--muted);}
   .currency-row select{width:auto;min-width:120px;}
@@ -35,21 +36,52 @@
   .toggle-row{display:flex;gap:8px;}
   .toggle-row button{flex:1;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;}
   .toggle-row button.active{background:var(--amber);color:#0d1015;border-color:var(--amber);font-weight:600;}
-  .advanced-toggle{
-    width:100%;padding:11px;border-radius:8px;border:1px dashed var(--line);background:none;
-    color:var(--amber);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin:6px 0 4px;
-  }
+  .advanced-toggle{width:100%;padding:11px;border-radius:8px;border:1px dashed var(--line);background:none;color:var(--amber);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin:6px 0 4px;}
   .advanced-fields{display:none;}
   .advanced-fields.open{display:block;}
+
   .readout{margin-top:8px;background:linear-gradient(180deg,#0d1015,#14181f);border:1px solid var(--line);border-radius:12px;padding:22px 20px;box-shadow:inset 0 2px 6px rgba(0,0,0,.4);}
   .readout .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px;}
   .readout .row:last-child{margin-bottom:0;padding-top:12px;border-top:1px dashed var(--line);}
   .readout .k{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
   .readout .v{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:#c9cfd8;}
   .readout .v.main{font-size:28px;color:var(--amber);text-shadow:0 0 16px rgba(232,163,61,.35);}
-  .breakdown{margin-top:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
-  .breakdown .brow{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:5px 0;}
-  .breakdown .brow span:last-child{color:var(--text);font-family:'IBM Plex Mono',monospace;}
+
+  /* Monthly/Total breakdown table */
+  .breakdown-table{margin-top:16px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  .breakdown-table table{width:100%;border-collapse:collapse;font-size:12px;}
+  .breakdown-table th{background:var(--surface);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;padding:8px 10px;text-align:right;}
+  .breakdown-table th:first-child{text-align:left;}
+  .breakdown-table td{padding:8px 10px;text-align:right;border-top:1px solid var(--line);font-family:'IBM Plex Mono',monospace;color:var(--text);}
+  .breakdown-table td:first-child{text-align:left;color:var(--muted);font-family:'Inter',sans-serif;}
+  .breakdown-table tr.total-row td{font-weight:700;color:var(--amber);border-top:1px solid var(--line);}
+
+  /* Donut chart */
+  .donut-section{display:flex;align-items:center;gap:18px;margin-top:18px;flex-wrap:wrap;justify-content:center;}
+  .donut{width:130px;height:130px;border-radius:50%;position:relative;flex-shrink:0;}
+  .donut::after{content:'';position:absolute;top:22%;left:22%;width:56%;height:56%;background:var(--surface);border-radius:50%;}
+  .donut-legend{display:flex;flex-direction:column;gap:6px;font-size:12px;}
+  .donut-legend .li{display:flex;align-items:center;gap:8px;color:var(--muted);}
+  .donut-legend .dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+  .donut-legend .pct{color:var(--text);font-family:'IBM Plex Mono',monospace;margin-left:auto;padding-left:10px;}
+
+  /* Loan summary */
+  .summary-table{margin-top:14px;}
+  .summary-table .srow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;}
+  .summary-table .srow:last-child{border-bottom:none;}
+  .summary-table .srow span:first-child{color:var(--muted);}
+  .summary-table .srow span:last-child{font-family:'IBM Plex Mono',monospace;color:var(--text);font-weight:600;}
+
+  /* Amortization schedule */
+  .amort-wrap{margin-top:14px;max-height:320px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;}
+  .amort-wrap table{width:100%;border-collapse:collapse;font-size:12px;}
+  .amort-wrap th{position:sticky;top:0;background:var(--surface-2);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;padding:9px 8px;text-align:right;}
+  .amort-wrap th:first-child{text-align:left;}
+  .amort-wrap td{padding:8px;text-align:right;border-top:1px solid var(--line);font-family:'IBM Plex Mono',monospace;color:var(--text);font-size:11.5px;}
+  .amort-wrap td:first-child{text-align:left;color:var(--muted);font-family:'Inter',sans-serif;}
+  .section-title{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;margin:28px 0 4px;}
+  .section-sub{font-size:12px;color:var(--muted);margin-bottom:12px;}
+
   footer{text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;margin-top:36px;}
   a.back{color:var(--muted);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:24px;}
   a.back:hover{color:var(--amber);}
@@ -150,7 +182,7 @@
   <a class="back" href="/index.html">&larr; All calculators</a>
   <div class="eyebrow">Finance / Loan</div>
   <h1>EMI / Mortgage Loan Calculator</h1>
-  <p class="sub">Full breakdown: principal, interest, tax, insurance, PMI, and HOA.</p>
+  <p class="sub">Full breakdown with amortization schedule and payoff chart.</p>
 
   <div class="panel">
     <div class="currency-row">
@@ -194,9 +226,15 @@
       <label>Loan term <span class="val" id="tenureVal">240 months (20 yrs)</span></label>
       <input type="range" id="tenure" min="12" max="360" step="12" value="240">
     </div>
+    <div class="field">
+      <label>Loan start date</label>
+      <div class="row2">
+        <select id="startMonth"></select>
+        <select id="startYear"></select>
+      </div>
+    </div>
 
     <button type="button" class="advanced-toggle" id="advToggle">+ Add property tax, insurance, PMI, HOA, extra payment</button>
-
     <div class="advanced-fields" id="advFields">
       <div class="section-label">Extra monthly costs</div>
       <div class="field">
@@ -226,29 +264,52 @@
       <div class="row"><span class="k">Total Interest</span><span class="v" id="interestOut">0</span></div>
       <div class="row"><span class="k">Payoff Time</span><span class="v" id="payoffOut">0</span></div>
     </div>
-    <div class="breakdown" id="breakdown">
-      <div class="brow"><span>Principal &amp; Interest</span><span id="bPI">0</span></div>
-      <div class="brow"><span>Property Tax</span><span id="bTax">0</span></div>
-      <div class="brow"><span>Home Insurance</span><span id="bIns">0</span></div>
-      <div class="brow"><span>PMI</span><span id="bPMI">0</span></div>
-      <div class="brow"><span>HOA</span><span id="bHOA">0</span></div>
+
+    <div class="breakdown-table">
+      <table>
+        <tr><th>Cost</th><th>Monthly</th><th>Total</th></tr>
+        <tr><td>Principal &amp; Interest</td><td id="bPI">0</td><td id="tPI">0</td></tr>
+        <tr><td>Property Tax</td><td id="bTax">0</td><td id="tTax">0</td></tr>
+        <tr><td>Home Insurance</td><td id="bIns">0</td><td id="tIns">0</td></tr>
+        <tr><td>PMI</td><td id="bPMI">0</td><td id="tPMI">0</td></tr>
+        <tr><td>HOA</td><td id="bHOA">0</td><td id="tHOA">0</td></tr>
+        <tr class="total-row"><td>Total</td><td id="bTotal">0</td><td id="tTotal">0</td></tr>
+      </table>
     </div>
+
+    <div class="donut-section">
+      <div class="donut" id="donut"></div>
+      <div class="donut-legend" id="donutLegend"></div>
+    </div>
+
+    <div class="section-title">Loan Summary</div>
+    <div class="summary-table" id="summaryTable"></div>
+
     <p class="note" style="font-size:11px;color:var(--muted);margin-top:14px;line-height:1.5;">Bank rates are approximate midpoints. Always confirm the exact rate and fees with your lender.</p>
+  </div>
+
+  <div class="section-title">Amortization Schedule (Yearly)</div>
+  <p class="section-sub">How your balance, principal, and interest change year by year.</p>
+  <div class="amort-wrap">
+    <table>
+      <thead><tr><th>Year</th><th>Principal Paid</th><th>Interest Paid</th><th>Ending Balance</th></tr></thead>
+      <tbody id="amortBody"></tbody>
+    </table>
   </div>
 
   <article class="content-block">
     <h2>How this calculator works</h2>
-    <p>Loan amount = home price − down payment. Monthly Principal &amp; Interest uses the standard amortization formula. If you add property tax, insurance, PMI, or HOA, they're added on top as a monthly escrow-style estimate — common for mortgages, though optional for personal or auto loans.</p>
+    <p>Loan amount = home price − down payment. Monthly Principal &amp; Interest uses the standard amortization formula. Property tax, insurance, PMI, and HOA are added as monthly escrow-style estimates. The amortization schedule shows exactly how much of each year's payments go to principal vs interest — early years are interest-heavy, later years shift toward principal.</p>
 
     <h2>What is PMI and when does it apply?</h2>
-    <p>Private Mortgage Insurance (PMI) is typically required when your down payment is below 20% of the home price, protecting the lender if you default. It usually falls off automatically once you reach 20-22% equity. If your down payment is 20%+, set PMI to 0.</p>
+    <p>Private Mortgage Insurance (PMI) is typically required when your down payment is below 20% of the home price. It usually falls off once you reach 20-22% equity. If your down payment is 20%+, set PMI to 0.</p>
 
-    <h2>Extra payments and payoff time</h2>
-    <p>Adding even a modest extra monthly payment reduces your loan term and total interest significantly, since every extra rupee/dollar goes straight to principal rather than future interest. This calculator recalculates your exact new payoff time when you add an extra payment.</p>
+    <h2>Reading the amortization table</h2>
+    <p>Notice how the "Interest Paid" column shrinks and "Principal Paid" grows each year — this is normal for reducing-balance loans. Extra payments accelerate this shift, which is why even small extra payments early in the loan save disproportionately more interest.</p>
 
     <h2>Frequently asked questions</h2>
     <p><strong>Should I include property tax and insurance for a car or personal loan?</strong> No — leave those at 0; they only apply to property-secured loans like mortgages.</p>
-    <p><strong>Is HOA the same everywhere?</strong> No — Homeowners Association fees are common in the US and some other markets for condos/gated communities; not all loans will have this cost.</p>
+    <p><strong>Why does my payoff date matter?</strong> It shows exactly when you'll be debt-free at your current payment level, and how much sooner extra payments get you there.</p>
   </article>
 </div>
 
@@ -296,15 +357,29 @@
   const pmiVal = document.getElementById('pmiVal');
   const hoaVal = document.getElementById('hoaVal');
   const extraVal = document.getElementById('extraVal');
+  const startMonth = document.getElementById('startMonth');
+  const startYear = document.getElementById('startYear');
 
   const totalMonthlyOut = document.getElementById('totalMonthlyOut');
   const interestOut = document.getElementById('interestOut');
   const payoffOut = document.getElementById('payoffOut');
-  const bPI = document.getElementById('bPI');
-  const bTax = document.getElementById('bTax');
-  const bIns = document.getElementById('bIns');
-  const bPMI = document.getElementById('bPMI');
-  const bHOA = document.getElementById('bHOA');
+  const bPI = document.getElementById('bPI'), tPI = document.getElementById('tPI');
+  const bTax = document.getElementById('bTax'), tTax = document.getElementById('tTax');
+  const bIns = document.getElementById('bIns'), tIns = document.getElementById('tIns');
+  const bPMI = document.getElementById('bPMI'), tPMI = document.getElementById('tPMI');
+  const bHOA = document.getElementById('bHOA'), tHOA = document.getElementById('tHOA');
+  const bTotal = document.getElementById('bTotal'), tTotal = document.getElementById('tTotal');
+  const donut = document.getElementById('donut');
+  const donutLegend = document.getElementById('donutLegend');
+  const summaryTable = document.getElementById('summaryTable');
+  const amortBody = document.getElementById('amortBody');
+
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now = new Date();
+  monthNames.forEach((m,i) => startMonth.innerHTML += `<option value="${i}" ${i===now.getMonth()?'selected':''}>${m}</option>`);
+  for (let y=now.getFullYear(); y<=now.getFullYear()+2; y++){
+    startYear.innerHTML += `<option value="${y}" ${y===now.getFullYear()?'selected':''}>${y}</option>`;
+  }
 
   let dpMode = 'amount';
 
@@ -357,14 +432,10 @@
     bankGrid.innerHTML = '';
     cfg.list.forEach(([label, r]) => {
       const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'bank-btn';
-      btn.textContent = label;
+      btn.type = 'button'; btn.className = 'bank-btn'; btn.textContent = label;
       btn.addEventListener('click', () => {
         document.querySelectorAll('.bank-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        rate.value = r;
-        calculate();
+        btn.classList.add('active'); rate.value = r; calculate();
       });
       bankGrid.appendChild(btn);
     });
@@ -381,8 +452,7 @@
       downPayment.max = parseFloat(price.value);
       downPayment.value = Math.round(fromUSD(currentDpUSD, newCurrency));
     }
-    renderBanks();
-    calculate();
+    renderBanks(); calculate();
   }
   currencySel.addEventListener('change', () => switchCurrency(currencySel.value));
 
@@ -394,18 +464,13 @@
         rates = { USD:1, INR:data.rates.INR||rates.INR, PKR:data.rates.PKR||rates.PKR, EUR:data.rates.EUR||rates.EUR, GBP:data.rates.GBP||rates.GBP };
         rateNote.textContent = 'Live exchange rates';
       } else { throw new Error('no rates'); }
-    } catch(e){
-      rateNote.textContent = 'Using approximate offline rates';
-    }
-    applyCurrencyBounds();
-    calculate();
+    } catch(e){ rateNote.textContent = 'Using approximate offline rates'; }
+    applyCurrencyBounds(); calculate();
   }
 
   function getDownPaymentAmount(){
     const p = parseFloat(price.value);
-    if (dpMode === 'percent'){
-      return p * (parseFloat(downPayment.value)/100);
-    }
+    if (dpMode === 'percent') return p * (parseFloat(downPayment.value)/100);
     return Math.min(parseFloat(downPayment.value), p);
   }
 
@@ -432,21 +497,40 @@
     else { basePI = loanAmt * r * Math.pow(1+r, n) / (Math.pow(1+r, n) - 1); }
     if (!isFinite(basePI) || isNaN(basePI)) basePI = 0;
 
-    // Amortization with extra payment to find payoff time and total interest
+    // Amortization with extra payment: track yearly totals
     let balance = loanAmt;
     let totalInterest = 0;
     let months = 0;
     const maxMonths = n * 3;
+    const yearlyData = [];
+    let yearPrincipal = 0, yearInterest = 0;
+    let currentYear = 1;
+
     while (balance > 0.5 && months < maxMonths){
       const interestPortion = balance * r;
       let principalPortion = basePI - interestPortion + extraM;
       if (principalPortion > balance) principalPortion = balance;
       balance -= principalPortion;
       totalInterest += interestPortion;
+      yearPrincipal += principalPortion;
+      yearInterest += interestPortion;
       months++;
+
+      if (months % 12 === 0 || balance <= 0.5){
+        yearlyData.push({ year: currentYear, principal: yearPrincipal, interest: yearInterest, balance: Math.max(0,balance) });
+        yearPrincipal = 0; yearInterest = 0;
+        currentYear++;
+      }
     }
 
     const totalMonthly = basePI + propTaxM + insM + pmiM + hoaM;
+    const totalPI = basePI * months + totalInterest - totalInterest; // just basePI*months approx via loop sums below
+    const totalPaidPI = loanAmt + totalInterest;
+    const totalTax = propTaxM * months;
+    const totalIns = insM * months;
+    const totalPmi = pmiM * months;
+    const totalHoa = hoaM * months;
+    const totalAll = totalPaidPI + totalTax + totalIns + totalPmi + totalHoa;
 
     priceVal.textContent = formatCurrency(p);
     dpVal.textContent = formatCurrency(dpAmt) + ' (' + dpPct.toFixed(1) + '%)';
@@ -465,23 +549,69 @@
     const payoffY = Math.floor(months/12), payoffM = months%12;
     payoffOut.textContent = payoffY + 'y ' + payoffM + 'm' + (months < n ? ' (saved ' + (n-months) + ' mo)' : '');
 
-    bPI.textContent = formatCurrency(basePI);
-    bTax.textContent = formatCurrency(propTaxM);
-    bIns.textContent = formatCurrency(insM);
-    bPMI.textContent = pmiM > 0 ? formatCurrency(pmiM) : formatCurrency(0) + ' (n/a)';
-    bHOA.textContent = formatCurrency(hoaM);
+    // Monthly/Total breakdown table
+    bPI.textContent = formatCurrency(basePI); tPI.textContent = formatCurrency(totalPaidPI);
+    bTax.textContent = formatCurrency(propTaxM); tTax.textContent = formatCurrency(totalTax);
+    bIns.textContent = formatCurrency(insM); tIns.textContent = formatCurrency(totalIns);
+    bPMI.textContent = pmiM > 0 ? formatCurrency(pmiM) : formatCurrency(0); tPMI.textContent = formatCurrency(totalPmi);
+    bHOA.textContent = formatCurrency(hoaM); tHOA.textContent = formatCurrency(totalHoa);
+    bTotal.textContent = formatCurrency(totalMonthly); tTotal.textContent = formatCurrency(totalAll);
+
+    // Donut chart
+    const segments = [
+      { label: 'Principal & Interest', val: basePI, color: 'var(--amber)' },
+      { label: 'Property Tax', val: propTaxM, color: 'var(--teal)' },
+      { label: 'Home Insurance', val: insM, color: 'var(--violet)' },
+      { label: 'PMI', val: pmiM, color: 'var(--red)' },
+      { label: 'HOA', val: hoaM, color: 'var(--grey)' }
+    ].filter(s => s.val > 0);
+    const sumAll = segments.reduce((a,s) => a+s.val, 0) || 1;
+    let cursor = 0;
+    const stops = segments.map(s => {
+      const pct = (s.val/sumAll)*100;
+      const stopStr = `${s.color} ${cursor}% ${cursor+pct}%`;
+      cursor += pct;
+      return stopStr;
+    });
+    donut.style.background = `conic-gradient(${stops.join(', ')})`;
+    donutLegend.innerHTML = segments.map(s => {
+      const pct = ((s.val/sumAll)*100).toFixed(0);
+      return `<div class="li"><span class="dot" style="background:${s.color};"></span>${s.label}<span class="pct">${pct}%</span></div>`;
+    }).join('');
+
+    // Loan summary
+    const sMonth = parseInt(startMonth.value), sYear = parseInt(startYear.value);
+    const payoffDate = new Date(sYear, sMonth + months, 1);
+    const payoffLabel = monthNames[payoffDate.getMonth()] + ' ' + payoffDate.getFullYear();
+
+    summaryTable.innerHTML = `
+      <div class="srow"><span>Home / Item Price</span><span>${formatCurrency(p)}</span></div>
+      <div class="srow"><span>Down Payment</span><span>${formatCurrency(dpAmt)}</span></div>
+      <div class="srow"><span>Loan Amount</span><span>${formatCurrency(loanAmt)}</span></div>
+      <div class="srow"><span>Total of ${months} Payments</span><span>${formatCurrency(totalPaidPI)}</span></div>
+      <div class="srow"><span>Total Interest</span><span>${formatCurrency(totalInterest)}</span></div>
+      <div class="srow"><span>Total Cost (incl. extras)</span><span>${formatCurrency(totalAll)}</span></div>
+      <div class="srow"><span>Payoff Date</span><span>${payoffLabel}</span></div>
+    `;
+
+    // Amortization schedule (yearly)
+    amortBody.innerHTML = yearlyData.map(y => `
+      <tr>
+        <td>Year ${y.year}</td>
+        <td>${formatCurrency(y.principal)}</td>
+        <td>${formatCurrency(y.interest)}</td>
+        <td>${formatCurrency(y.balance)}</td>
+      </tr>
+    `).join('');
   }
 
-  [price, downPayment, rate, tenure, propTax, insurance, pmi, hoa, extra].forEach(el => el.addEventListener('input', calculate));
+  [price, downPayment, rate, tenure, propTax, insurance, pmi, hoa, extra, startMonth, startYear].forEach(el => el.addEventListener('input', calculate));
   applyCurrencyBounds();
   renderBanks();
   calculate();
   fetchLiveRates();
 </script>
-<div style="margin:28px auto 0;max-width:460px;text-align:center;">
-<script async="async" data-cfasync="false" src="https://annoyingnightmareedit.com/df18a40bc41385d8eb1020b93064ccdf/invoke.js"></script>
-<div id="container-df18a40bc41385d8eb1020b93064ccdf"></div>
-</div>
+<script src="/ads.js"></script>
 
 <script>
 (function(){

@@ -39,10 +39,12 @@
   .slider-row{display:flex;align-items:center;gap:10px;}
   .slider-row input[type=range]{flex:1;}
   .manual-input{
-    width:84px;flex-shrink:0;
-    background:var(--surface-2);border:1px solid var(--line);color:var(--text);
-    font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px 8px;border-radius:6px;outline:none;text-align:right;
+    width:118px;flex-shrink:0;
+    background:var(--surface-2);border:1.5px solid var(--line);color:var(--text);
+    font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;padding:10px 12px;border-radius:8px;outline:none;text-align:right;
+    transition:border-color .15s ease;
   }
+  .manual-input:focus{border-color:#8b96a5;}
   .manual-input::-webkit-outer-spin-button, .manual-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
   .manual-input{-moz-appearance:textfield;}
 </style>
@@ -51,6 +53,10 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+
+
+
+
 
 
 
@@ -141,6 +147,10 @@
 
 
 
+
+
+
+
 <div class="wrap">
   <a class="back" href="/index.html">&larr; All calculators</a>
   <div class="eyebrow">Math / Everyday</div>
@@ -159,6 +169,10 @@
     <div class="field">
       <label>Split between <span class="val" id="peopleVal">1 person</span></label>
       <input type="range" id="people" min="1" max="20" step="1" value="1">
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:13px;color:var(--muted);">
+      <input type="checkbox" id="roundUp">
+      <label for="roundUp" style="margin:0;">Round up total bill to nearest whole number</label>
     </div>
 
     <div class="readout">
@@ -193,6 +207,7 @@
   const billVal = document.getElementById('billVal');
   const tipVal = document.getElementById('tipVal');
   const peopleVal = document.getElementById('peopleVal');
+  const roundUp = document.getElementById('roundUp');
   const tipOut = document.getElementById('tipOut');
   const totalOut = document.getElementById('totalOut');
   const perPersonOut = document.getElementById('perPersonOut');
@@ -205,7 +220,8 @@
     const p = parseInt(people.value);
 
     const tipAmt = b * t / 100;
-    const total = b + tipAmt;
+    let total = b + tipAmt;
+    if (roundUp.checked) total = Math.ceil(total);
     const perPerson = total / p;
 
     billVal.textContent = formatINR(b);
@@ -216,13 +232,10 @@
     perPersonOut.textContent = formatINR(perPerson);
   }
 
-  [bill, tip, people].forEach(el => el.addEventListener('input', calculate));
+  [bill, tip, people, roundUp].forEach(el => el.addEventListener('input', calculate));
   calculate();
 </script>
-<div style="margin:28px auto 0;max-width:460px;text-align:center;">
-<script async="async" data-cfasync="false" src="https://annoyingnightmareedit.com/df18a40bc41385d8eb1020b93064ccdf/invoke.js"></script>
-<div id="container-df18a40bc41385d8eb1020b93064ccdf"></div>
-</div>
+<script src="/ads.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function(){
   document.querySelectorAll("input[type=range]").forEach(function(slider){
@@ -255,6 +268,10 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 });
 </script>
+
+
+
+
 
 
 

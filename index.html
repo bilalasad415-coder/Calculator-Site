@@ -218,6 +218,10 @@
 
 
 
+
+
+
+
 <style>
   .site-nav{position:sticky;top:0;z-index:100;background:rgba(18,22,29,0.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--line,#2c3542);font-family:'Inter',sans-serif;}
   .nav-inner{max-width:1040px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:relative;}
@@ -298,6 +302,10 @@
     </div>
   </div>
 </nav>
+
+
+
+
 
 
 
@@ -608,10 +616,7 @@
   </div>
 </footer>
 
-<div style="margin:28px auto 0;max-width:460px;text-align:center;">
-<script async="async" data-cfasync="false" src="https://annoyingnightmareedit.com/df18a40bc41385d8eb1020b93064ccdf/invoke.js"></script>
-<div id="container-df18a40bc41385d8eb1020b93064ccdf"></div>
-</div>
+<script src="/ads.js"></script>
 
 
 
@@ -715,24 +720,6 @@
 </script>
 
 
-<script>
-(function(){
-  var toggle = document.getElementById('navToggle');
-  var menu = document.getElementById('navMenu');
-  if(toggle){
-    toggle.addEventListener('click', function(){ menu.classList.toggle('open'); });
-  }
-  document.querySelectorAll('.nav-cat').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      if(window.innerWidth < 760){
-        var drop = btn.nextElementSibling;
-        drop.classList.toggle('open');
-        btn.classList.toggle('open');
-      }
-    });
-  });
-})();
-</script>
 
 <script>
 (function(){
@@ -761,6 +748,28 @@
     });
 
     noResults.classList.toggle('show', !anyVisible);
+  });
+})();
+</script>
+
+
+
+
+<script>
+(function(){
+  var toggle = document.getElementById('navToggle');
+  var menu = document.getElementById('navMenu');
+  if(toggle){
+    toggle.addEventListener('click', function(){ menu.classList.toggle('open'); });
+  }
+  document.querySelectorAll('.nav-cat').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(window.innerWidth < 760){
+        var drop = btn.nextElementSibling;
+        drop.classList.toggle('open');
+        btn.classList.toggle('open');
+      }
+    });
   });
 })();
 </script>

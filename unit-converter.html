@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Unit Converter — Calculators</title>
+<title>Unit Converter (Length, Weight, Area, Volume, Speed, Data) — Calculators</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -14,29 +14,27 @@
   .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
   .eyebrow::before{content:'';width:16px;height:1px;background:var(--accent);}
   h1{font-family:'Sora',sans-serif;font-weight:800;font-size:26px;margin-bottom:6px;letter-spacing:-0.01em;}
-  .sub{color:var(--muted);font-size:14px;margin-bottom:28px;}
-  .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;}
-  .toggle-row{display:flex;gap:8px;margin-bottom:22px;}
-  .toggle-row button{
-    flex:1;padding:10px;border-radius:8px;border:1px solid var(--line);
-    background:var(--surface-2);color:var(--muted);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;
+  .sub{color:var(--muted);font-size:14px;margin-bottom:24px;}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;}
+  .cat-scroll{display:flex;gap:6px;overflow-x:auto;margin-bottom:20px;padding-bottom:4px;}
+  .cat-scroll button{
+    flex-shrink:0;padding:9px 14px;border-radius:8px;border:1px solid var(--line);
+    background:var(--surface-2);color:var(--muted);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;white-space:nowrap;
   }
-  .toggle-row button.active{background:var(--accent);color:#0d1015;border-color:var(--accent);font-weight:600;}
+  .cat-scroll button.active{background:var(--accent);color:#0d1015;font-weight:600;border-color:var(--accent);}
   .convert-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
   .convert-row input[type=number]{
-    flex:1;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
-    font-family:'IBM Plex Mono',monospace;font-size:16px;padding:12px;border-radius:8px;outline:none;min-width:0;
+    flex:1;background:var(--surface-2);border:1.5px solid var(--line);color:var(--text);
+    font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600;padding:12px;border-radius:8px;outline:none;min-width:0;
   }
   .convert-row input[type=number]:focus{border-color:var(--accent);}
   select{
     background:var(--surface-2);border:1px solid var(--line);color:var(--text);
     font-family:'IBM Plex Mono',monospace;font-size:13px;padding:12px 8px;border-radius:8px;outline:none;
   }
-  .swap{
-    text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:18px;margin:6px 0;
-  }
+  .swap{text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:18px;margin:6px 0;}
   .readout{margin-top:14px;background:linear-gradient(180deg,#0d1015,#14181f);border:1px solid var(--line);border-radius:12px;padding:22px 20px;box-shadow:inset 0 2px 6px rgba(0,0,0,.4);text-align:center;}
-  .readout .v.main{font-family:'IBM Plex Mono',monospace;font-size:30px;color:var(--accent);text-shadow:0 0 16px rgba(155,140,242,.35);}
+  .readout .v.main{font-family:'IBM Plex Mono',monospace;font-size:24px;color:var(--accent);text-shadow:0 0 16px rgba(155,140,242,.35);word-break:break-word;}
   footer{text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;margin-top:36px;}
   a.back{color:var(--muted);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:24px;}
   a.back:hover{color:var(--accent);}
@@ -51,8 +49,6 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
-
-
 
 
 
@@ -139,18 +135,22 @@
 
 
 
-
-
 <div class="wrap">
   <a class="back" href="/index.html">&larr; All calculators</a>
   <div class="eyebrow">Math / Convert</div>
   <h1>Unit Converter</h1>
-  <p class="sub">Length, weight, and temperature — instant conversion.</p>
+  <p class="sub">Length, weight, area, volume, speed, data, and more.</p>
 
   <div class="panel">
-    <div class="toggle-row">
+    <div class="cat-scroll" id="catScroll">
       <button type="button" class="active" data-cat="length">Length</button>
       <button type="button" data-cat="weight">Weight</button>
+      <button type="button" data-cat="area">Area</button>
+      <button type="button" data-cat="volume">Volume</button>
+      <button type="button" data-cat="speed">Speed</button>
+      <button type="button" data-cat="time">Time</button>
+      <button type="button" data-cat="data">Data Storage</button>
+      <button type="button" data-cat="pressure">Pressure</button>
       <button type="button" data-cat="temp">Temperature</button>
     </div>
 
@@ -158,7 +158,7 @@
       <input type="number" id="fromValue" value="1">
       <select id="fromUnit"></select>
     </div>
-    <div class="swap">↓</div>
+    <div class="swap">&#8595;</div>
     <div class="convert-row">
       <input type="number" id="toValue" readonly>
       <select id="toUnit"></select>
@@ -170,18 +170,15 @@
   </div>
 
   <article class="content-block">
-    <h2>Length, weight, and temperature conversions</h2>
-    <p>This converter handles the most commonly needed unit types: length (metric and imperial), weight (kilograms, pounds, ounces, and more), and temperature (Celsius, Fahrenheit, Kelvin) — covering the conversions people search for most often in cooking, travel, fitness, and everyday measurement.</p>
+    <h2>Nine conversion categories</h2>
+    <p>This converter covers length, weight/mass, area, volume, speed, time, digital data storage, pressure, and temperature — the units people search for most often across cooking, construction, travel, science, and computing.</p>
 
-    <h2>Temperature conversion formulas</h2>
-    <p>Celsius to Fahrenheit: °F = °C × 9/5 + 32. Fahrenheit to Celsius: °C = (°F − 32) × 5/9. Celsius to Kelvin: K = °C + 273.15. These aren't simple ratios like length or weight, since each scale has a different zero point.</p>
-
-    <h2>Why metric and imperial coexist</h2>
-    <p>Most of the world uses the metric system, but a few countries (notably the US) primarily use imperial units for everyday measurement, which is why converters like this remain useful for travel, recipes, and international communication.</p>
+    <h2>Precision and rounding</h2>
+    <p>Results are shown to 6 decimal places where needed, trimmed of trailing zeros for readability. For unit pairs with very large scale differences (like bytes to terabytes), results may show in scientific-friendly decimal form.</p>
 
     <h2>Frequently asked questions</h2>
-    <p><strong>Why do my numbers have long decimals?</strong> Some conversions (like inches to centimeters) don't divide evenly — this tool rounds to 4 decimal places for practical accuracy without excessive digits.</p>
-    <p><strong>Can I convert between length and weight?</strong> No — length and weight are different physical quantities, so conversions only work within the same category (e.g., meters to feet, not meters to kilograms).</p>
+    <p><strong>Why do data storage conversions sometimes look different from what I expect?</strong> This converter uses the standard 1024-based binary system for data storage (KB, MB, GB) consistent with how operating systems typically report file/storage sizes, rather than the 1000-based decimal system some manufacturers use for drive capacity marketing.</p>
+    <p><strong>Can I convert between different categories, like weight to volume?</strong> No — weight and volume are different physical quantities (unless density is known), so conversions only work within the same category.</p>
   </article>
 </div>
 
@@ -189,18 +186,23 @@
 
 <script>
   const units = {
-    length: {
-      m: 1, km: 1000, cm: 0.01, mm: 0.001,
-      mile: 1609.34, yard: 0.9144, foot: 0.3048, inch: 0.0254
-    },
-    weight: {
-      kg: 1, g: 0.001, mg: 0.000001,
-      lb: 0.453592, oz: 0.0283495, ton: 1000
-    }
+    length: { m:1, km:1000, cm:0.01, mm:0.001, mile:1609.34, yard:0.9144, foot:0.3048, inch:0.0254, nauticalMile:1852 },
+    weight: { kg:1, g:0.001, mg:0.000001, lb:0.453592, oz:0.0283495, ton:1000, stone:6.35029 },
+    area: { sqm:1, sqkm:1000000, sqft:0.092903, sqyard:0.836127, acre:4046.86, hectare:10000, sqmile:2589988.11 },
+    volume: { liter:1, ml:0.001, gallon:3.78541, quart:0.946353, pint:0.473176, cup:0.24, m3:1000, floz:0.0295735 },
+    speed: { 'm/s':1, 'km/h':0.277778, mph:0.44704, knot:0.514444, 'ft/s':0.3048 },
+    time: { second:1, minute:60, hour:3600, day:86400, week:604800, month:2629800, year:31557600 },
+    data: { byte:1, KB:1024, MB:1048576, GB:1073741824, TB:1099511627776, bit:0.125 },
+    pressure: { pascal:1, kPa:1000, bar:100000, psi:6894.76, atm:101325, mmHg:133.322 }
+  };
+
+  const catLabels = {
+    length:'Length', weight:'Weight', area:'Area', volume:'Volume',
+    speed:'Speed', time:'Time', data:'Data Storage', pressure:'Pressure', temp:'Temperature'
   };
 
   let category = 'length';
-  const buttons = document.querySelectorAll('.toggle-row button');
+  const buttons = document.querySelectorAll('.cat-scroll button');
   const fromValue = document.getElementById('fromValue');
   const toValue = document.getElementById('toValue');
   const fromUnit = document.getElementById('fromUnit');
@@ -211,7 +213,7 @@
     fromUnit.innerHTML = '';
     toUnit.innerHTML = '';
     if (category === 'temp'){
-      ['Celsius','Fahrenheit','Kelvin'].forEach((u,i) => {
+      ['Celsius','Fahrenheit','Kelvin'].forEach(u => {
         fromUnit.innerHTML += `<option value="${u}">${u}</option>`;
         toUnit.innerHTML += `<option value="${u}">${u}</option>`;
       });
@@ -231,7 +233,6 @@
     if (from === 'Celsius') celsius = val;
     else if (from === 'Fahrenheit') celsius = (val - 32) * 5/9;
     else celsius = val - 273.15;
-
     if (to === 'Celsius') return celsius;
     if (to === 'Fahrenheit') return celsius * 9/5 + 32;
     return celsius + 273.15;
@@ -246,8 +247,9 @@
       const baseVal = val * units[category][fromUnit.value];
       result = baseVal / units[category][toUnit.value];
     }
-    toValue.value = Math.round(result * 10000) / 10000;
-    resultText.textContent = `${val} ${fromUnit.value || ''} = ${toValue.value} ${toUnit.value || ''}`;
+    let displayResult = Math.round(result * 1000000) / 1000000;
+    toValue.value = displayResult;
+    resultText.textContent = `${val} ${fromUnit.value || ''} = ${displayResult} ${toUnit.value || ''}`;
   }
 
   buttons.forEach(btn => {
@@ -262,12 +264,7 @@
   [fromValue, fromUnit, toUnit].forEach(el => el.addEventListener('input', calculate));
   populateUnits();
 </script>
-<div style="margin:28px auto 0;max-width:460px;text-align:center;">
-<script async="async" data-cfasync="false" src="https://annoyingnightmareedit.com/df18a40bc41385d8eb1020b93064ccdf/invoke.js"></script>
-<div id="container-df18a40bc41385d8eb1020b93064ccdf"></div>
-</div>
-
-
+<script src="/ads.js"></script>
 
 
 

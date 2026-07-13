@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Date Difference Calculator — Calculators</title>
+<title>Date Difference Calculator (with Business Days) — Calculators</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -19,17 +19,18 @@
   .field{margin-bottom:20px;}
   .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px;}
   input[type=date]{
-    width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
-    font-family:'IBM Plex Mono',monospace;font-size:15px;padding:10px 12px;border-radius:8px;outline:none;
+    width:100%;background:var(--surface-2);border:1.5px solid var(--line);color:var(--text);
+    font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;padding:11px 12px;border-radius:8px;outline:none;
     color-scheme: dark;
   }
   input[type=date]:focus{border-color:var(--accent);}
+  .checkbox-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13px;color:var(--muted);}
   .readout{margin-top:16px;background:linear-gradient(180deg,#0d1015,#14181f);border:1px solid var(--line);border-radius:12px;padding:22px 20px;box-shadow:inset 0 2px 6px rgba(0,0,0,.4);}
   .readout .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;}
   .readout .row:last-child{margin-bottom:0;padding-top:12px;border-top:1px dashed var(--line);}
   .readout .k{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
   .readout .v{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#c9cfd8;}
-  .readout .v.main{font-size:28px;color:var(--accent);text-shadow:0 0 16px rgba(155,140,242,.35);}
+  .readout .v.main{font-size:26px;color:var(--accent);text-shadow:0 0 16px rgba(155,140,242,.35);}
   footer{text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;margin-top:36px;}
   a.back{color:var(--muted);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:24px;}
   a.back:hover{color:var(--accent);}
@@ -44,8 +45,6 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
-
-
 
 
 
@@ -132,13 +131,11 @@
 
 
 
-
-
 <div class="wrap">
   <a class="back" href="/index.html">&larr; All calculators</a>
   <div class="eyebrow">Math / Date</div>
   <h1>Date Difference Calculator</h1>
-  <p class="sub">Days, weeks, and months between two dates.</p>
+  <p class="sub">Days, weeks, months, and business days between two dates.</p>
 
   <div class="panel">
     <div class="field">
@@ -149,27 +146,30 @@
       <label>End date</label>
       <input type="date" id="end">
     </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="includeEnd">
+      <label for="includeEnd" style="margin:0;">Include both start and end day in count</label>
+    </div>
 
     <div class="readout">
       <div class="row"><span class="k">Total Days</span><span class="v main" id="daysOut">—</span></div>
       <div class="row"><span class="k">Weeks</span><span class="v" id="weeksOut">—</span></div>
       <div class="row"><span class="k">Months (approx)</span><span class="v" id="monthsOut">—</span></div>
+      <div class="row"><span class="k">Business Days (Mon–Fri)</span><span class="v" id="businessOut">—</span></div>
+      <div class="row"><span class="k">Weekend Days</span><span class="v" id="weekendOut">—</span></div>
     </div>
   </div>
 
   <article class="content-block">
-    <h2>How the days between two dates are counted</h2>
-    <p>This calculator counts the exact number of calendar days between your start and end dates, accounting for varying month lengths and leap years. Whether the count is inclusive or exclusive of the start/end day depends on the use case — this tool shows the raw difference, which you can adjust by ±1 day if you need an inclusive count.</p>
+    <h2>Business days vs calendar days</h2>
+    <p>Business days count only Monday through Friday, excluding weekends — commonly used for shipping estimates, contract deadlines, and work-related timelines. This calculator doesn't account for public holidays, which vary by country and region.</p>
 
-    <h2>Common uses</h2>
-    <p>Date difference calculations are commonly needed for contract or lease durations, project deadlines, pregnancy due dates, visa or work permit day-counting rules, and tracking countdowns to events.</p>
-
-    <h2>Weeks and months are approximate</h2>
-    <p>The "months" figure uses an average month length (30.44 days) since calendar months vary from 28 to 31 days — for exact month/day breakdowns between two specific dates, use our <a href="/age-calculator.html" style="color:var(--accent);">Age Calculator</a>, which calculates precise calendar-based year/month/day differences.</p>
+    <h2>Inclusive vs exclusive counting</h2>
+    <p>By default, this shows the pure difference between two dates (exclusive). Checking "include both start and end day" adds 1 to the total — useful for questions like "how many days am I traveling" where both the departure and return day count as full days.</p>
 
     <h2>Frequently asked questions</h2>
-    <p><strong>Does this include or exclude the start date?</strong> The day count reflects the pure difference between the two dates — if you need to count both the start and end day as separate days, add 1 to the result.</p>
-    <p><strong>Can I calculate a date in the past from today?</strong> Yes — enter any two dates in any order; the calculator will show the absolute difference regardless of which is earlier.</p>
+    <p><strong>Does this account for public holidays?</strong> No — business day counts here are based purely on weekdays (Mon-Fri). For holiday-adjusted business days, you'll need to manually subtract known holidays in your range.</p>
+    <p><strong>Can I use this for age calculation instead?</strong> For precise year/month/day age breakdowns, use our <a href="/age-calculator.html" style="color:var(--accent);">Age Calculator</a>, which handles calendar-based age differently than a raw day count.</p>
   </article>
 </div>
 
@@ -178,9 +178,12 @@
 <script>
   const start = document.getElementById('start');
   const end = document.getElementById('end');
+  const includeEnd = document.getElementById('includeEnd');
   const daysOut = document.getElementById('daysOut');
   const weeksOut = document.getElementById('weeksOut');
   const monthsOut = document.getElementById('monthsOut');
+  const businessOut = document.getElementById('businessOut');
+  const weekendOut = document.getElementById('weekendOut');
 
   const today = new Date();
   start.valueAsDate = today;
@@ -188,27 +191,40 @@
   later.setDate(later.getDate() + 30);
   end.valueAsDate = later;
 
+  function countBusinessDays(s, e){
+    let count = 0, weekends = 0;
+    let cur = new Date(Math.min(s,e));
+    const last = new Date(Math.max(s,e));
+    while (cur <= last){
+      const day = cur.getDay();
+      if (day === 0 || day === 6) weekends++;
+      else count++;
+      cur.setDate(cur.getDate()+1);
+    }
+    return { business: count, weekends };
+  }
+
   function calculate(){
     if (!start.value || !end.value) return;
     const s = new Date(start.value);
     const e = new Date(end.value);
     const diffMs = e - s;
-    const totalDays = Math.round(diffMs / (1000*60*60*24));
+    let totalDays = Math.round(diffMs / (1000*60*60*24));
+    if (includeEnd.checked) totalDays += (totalDays >= 0 ? 1 : -1);
 
     daysOut.textContent = (totalDays < 0 ? '−' : '') + Math.abs(totalDays).toLocaleString('en-IN') + ' days';
     weeksOut.textContent = (Math.abs(totalDays)/7).toFixed(1) + ' weeks';
     monthsOut.textContent = (Math.abs(totalDays)/30.44).toFixed(1) + ' months';
+
+    const bd = countBusinessDays(s, e);
+    businessOut.textContent = bd.business.toLocaleString('en-IN') + ' days';
+    weekendOut.textContent = bd.weekends.toLocaleString('en-IN') + ' days';
   }
 
-  [start, end].forEach(el => el.addEventListener('input', calculate));
+  [start, end, includeEnd].forEach(el => el.addEventListener('input', calculate));
   calculate();
 </script>
-<div style="margin:28px auto 0;max-width:460px;text-align:center;">
-<script async="async" data-cfasync="false" src="https://annoyingnightmareedit.com/df18a40bc41385d8eb1020b93064ccdf/invoke.js"></script>
-<div id="container-df18a40bc41385d8eb1020b93064ccdf"></div>
-</div>
-
-
+<script src="/ads.js"></script>
 
 
 

@@ -28,18 +28,21 @@
   script.src = ADSTERRA_SRC;
   document.body.appendChild(script);
 })();
-// pehla ad block (already maujood hai) — isko chhedna nahi
+// // pehla ad block (already maujood hai) — isko chhedna nahi
 
 // ===== naya ad block (yeh neeche add karein) =====
 (function(){
+  // Aapke naye script ki unique Adsterra Key (Hash)
   var KEY_2 = 'e2c80ed3d16063a28e702e541785ffbf';
-  var SRC_2 = 'https://annoyingnightmareedit.com/' + KEY_2 + '/invoke.js';
+  // Aapka naya Adsterra script domain
+  var SRC_2 = 'https://annoyingnightmareedit.com/' + KEY_2 + '.js';
 
   var wrapper2 = document.createElement('div');
   wrapper2.style.margin = '20px auto';
   wrapper2.style.maxWidth = '460px';
   wrapper2.style.textAlign = 'center';
 
+  // Container jahan ad render hoga
   var container2 = document.createElement('div');
   container2.id = 'container-' + KEY_2;
   wrapper2.appendChild(container2);
@@ -52,6 +55,7 @@
     document.body.appendChild(wrapper2);
   }
 
+  // Script load aur execute karna
   var script2 = document.createElement('script');
   script2.async = true;
   script2.setAttribute('data-cfasync', 'false');

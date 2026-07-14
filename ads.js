@@ -28,3 +28,33 @@
   script.src = ADSTERRA_SRC;
   document.body.appendChild(script);
 })();
+// pehla ad block (already maujood hai) — isko chhedna nahi
+
+// ===== naya ad block (yeh neeche add karein) =====
+(function(){
+  var KEY_2 = 'e2c80ed3d16063a28e702e541785ffbf';
+  var SRC_2 = 'https://annoyingnightmareedit.com/' + KEY_2 + '/invoke.js';
+
+  var wrapper2 = document.createElement('div');
+  wrapper2.style.margin = '20px auto';
+  wrapper2.style.maxWidth = '460px';
+  wrapper2.style.textAlign = 'center';
+
+  var container2 = document.createElement('div');
+  container2.id = 'container-' + KEY_2;
+  wrapper2.appendChild(container2);
+
+  // Kahan lagana hai: 'body' ke shuru mein (top) ya 'footer' se pehle (bottom)
+  var footer = document.querySelector('footer');
+  if (footer && footer.parentNode) {
+    footer.parentNode.insertBefore(wrapper2, footer);
+  } else {
+    document.body.appendChild(wrapper2);
+  }
+
+  var script2 = document.createElement('script');
+  script2.async = true;
+  script2.setAttribute('data-cfasync', 'false');
+  script2.src = SRC_2;
+  document.body.appendChild(script2);
+})();

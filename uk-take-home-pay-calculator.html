@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UK Take-Home Pay Calculator 2026 - PAYE & National Insurance</title>
+<meta name="description" content="Free UK salary calculator. Work out your take-home pay after Income Tax and National Insurance for 2026/27.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:760px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 28px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:40px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>UK Take-Home Pay Calculator</h1>
+  <p class="sub">Estimate your net salary after Income Tax and National Insurance — 2026/27 rates, England &amp; Wales.</p>
+
+  <div class="card">
+    <label for="salary">Gross Annual Salary (£)</label>
+    <input type="number" id="salary" placeholder="e.g. 35000" value="35000">
+
+    <div class="row">
+      <div>
+        <label for="freq">Pay Frequency</label>
+        <select id="freq">
+          <option value="12" selected>Monthly</option>
+          <option value="52">Weekly</option>
+          <option value="1">Annually</option>
+        </select>
+      </div>
+      <div>
+        <label for="age">Age</label>
+        <select id="age">
+          <option value="under21">Under 21</option>
+          <option value="over21" selected>21 or over</option>
+        </select>
+      </div>
+    </div>
+
+    <button onclick="calc()">Calculate Take-Home Pay</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="label">Take-Home Pay</div>
+    <div class="amt" id="netPay">£0</div>
+    <div class="breakdown">
+      <div class="brow"><span>Personal allowance</span><span id="pa">£0</span></div>
+      <div class="brow"><span>Income Tax</span><span id="tax">£0</span></div>
+      <div class="brow"><span>National Insurance</span><span id="ni">£0</span></div>
+      <div class="brow"><span>Annual take-home</span><span id="annualNet">£0</span></div>
+    </div>
+  </div>
+
+  <footer>Estimates only, based on standard tax code and 2026/27 approximate thresholds. Not financial advice — check gov.uk for exact figures.</footer>
+</div>
+
+<script>
+function incomeTax(income){
+  let allowance = 12570;
+  if(income>100000){
+    allowance = Math.max(0, 12570-(income-100000)/2);
+  }
+  const taxable = Math.max(0, income-allowance);
+  let tax=0;
+  const basicBand=37700, higherBand=125140-allowance;
+  if(taxable<=basicBand){
+    tax = taxable*0.20;
+  } else if(taxable<=higherBand){
+    tax = basicBand*0.20 + (taxable-basicBand)*0.40;
+  } else {
+    tax = basicBand*0.20 + (higherBand-basicBand)*0.40 + (taxable-higherBand)*0.45;
+  }
+  return {tax, allowance};
+}
+function nationalInsurance(income){
+  const weekly = income/52;
+  const primaryThreshold = 12570;
+  const upperLimit = 50270;
+  if(income<=primaryThreshold) return 0;
+  let ni;
+  if(income<=upperLimit){
+    ni = (income-primaryThreshold)*0.08;
+  } else {
+    ni = (upperLimit-primaryThreshold)*0.08 + (income-upperLimit)*0.02;
+  }
+  return ni;
+}
+function calc(){
+  const salary = parseFloat(document.getElementById('salary').value)||0;
+  const freq = parseInt(document.getElementById('freq').value);
+
+  const {tax, allowance} = incomeTax(salary);
+  const ni = nationalInsurance(salary);
+  const annualNet = salary-tax-ni;
+  const netPP = annualNet/freq;
+
+  document.getElementById('netPay').textContent = '£'+netPP.toFixed(2);
+  document.getElementById('pa').textContent = '£'+allowance.toFixed(0);
+  document.getElementById('tax').textContent = '£'+tax.toFixed(2);
+  document.getElementById('ni').textContent = '£'+ni.toFixed(2);
+  document.getElementById('annualNet').textContent = '£'+annualNet.toFixed(2);
+  document.getElementById('result').classList.add('show');
+}
+calc();
+</script>
+</body>
+</html>

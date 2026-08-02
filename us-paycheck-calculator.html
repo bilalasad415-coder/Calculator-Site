@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Paycheck Calculator 2026 - Estimate Your Take-Home Pay</title>
+<meta name="description" content="Free US paycheck calculator. Estimate your take-home pay after federal tax, state tax, Social Security and Medicare for any pay frequency.">
+<style>
+  :root{
+    --navy:#0F2A3D; --teal:#1B4B5A; --gold:#D9A441; --bg:#F6F4EF;
+    --ink:#16232B; --muted:#5A6570; --card:#FFFFFF; --line:#E4DFD3;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:760px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 28px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;transition:background .15s;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:40px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>US Paycheck Calculator</h1>
+  <p class="sub">Estimate your take-home pay after federal tax, state tax, and FICA — 2026 rates.</p>
+
+  <div class="card">
+    <label for="salary">Gross Annual Salary ($)</label>
+    <input type="number" id="salary" placeholder="e.g. 65000" value="65000">
+
+    <div class="row">
+      <div>
+        <label for="state">State</label>
+        <select id="state">
+          <option value="0">No state tax (TX, FL, WA...)</option>
+          <option value="0.05">Average state tax (~5%)</option>
+          <option value="0.093">High state tax (CA-like, ~9.3%)</option>
+        </select>
+      </div>
+      <div>
+        <label for="freq">Pay Frequency</label>
+        <select id="freq">
+          <option value="12">Monthly</option>
+          <option value="24">Semi-monthly</option>
+          <option value="26" selected>Bi-weekly</option>
+          <option value="52">Weekly</option>
+        </select>
+      </div>
+    </div>
+
+    <label for="filing">Filing Status</label>
+    <select id="filing">
+      <option value="single">Single</option>
+      <option value="married">Married Filing Jointly</option>
+    </select>
+
+    <button onclick="calc()">Calculate Take-Home Pay</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="label">Take-Home Pay Per Paycheck</div>
+    <div class="amt" id="netPay">$0</div>
+    <div class="breakdown">
+      <div class="brow"><span>Gross per paycheck</span><span id="grossPP">$0</span></div>
+      <div class="brow"><span>Federal tax</span><span id="fedTax">$0</span></div>
+      <div class="brow"><span>State tax</span><span id="stTax">$0</span></div>
+      <div class="brow"><span>Social Security (6.2%)</span><span id="ssTax">$0</span></div>
+      <div class="brow"><span>Medicare (1.45%)</span><span id="medTax">$0</span></div>
+      <div class="brow"><span>Annual take-home</span><span id="annualNet">$0</span></div>
+    </div>
+  </div>
+
+  <footer>Estimates only, using simplified 2026 bracket approximations. Not tax advice — consult a professional or the IRS withholding estimator for exact figures.</footer>
+</div>
+
+<script>
+function fedBrackets(income, filing){
+  // Simplified 2026 approx brackets
+  const single = [[0,0.10],[11600,0.12],[47150,0.22],[100525,0.24],[191950,0.32],[243725,0.35],[609350,0.37]];
+  const married = [[0,0.10],[23200,0.12],[94300,0.22],[201050,0.24],[383900,0.32],[487450,0.35],[731200,0.37]];
+  const std = filing==='married' ? 29200 : 14600;
+  const taxable = Math.max(0, income - std);
+  const b = filing==='married' ? married : single;
+  let tax=0;
+  for(let i=0;i<b.length;i++){
+    const [floor,rate]=b[i];
+    const next = i+1<b.length ? b[i+1][0] : Infinity;
+    if(taxable>floor){
+      tax += (Math.min(taxable,next)-floor)*rate;
+    }
+  }
+  return tax;
+}
+function calc(){
+  const salary = parseFloat(document.getElementById('salary').value)||0;
+  const stateRate = parseFloat(document.getElementById('state').value);
+  const freq = parseInt(document.getElementById('freq').value);
+  const filing = document.getElementById('filing').value;
+
+  const fed = fedBrackets(salary, filing);
+  const state = salary*stateRate;
+  const ss = Math.min(salary,168600)*0.062;
+  const med = salary*0.0145;
+
+  const totalTax = fed+state+ss+med;
+  const annualNet = salary-totalTax;
+  const netPP = annualNet/freq;
+  const grossPP = salary/freq;
+
+  document.getElementById('netPay').textContent = '$'+netPP.toFixed(2);
+  document.getElementById('grossPP').textContent = '$'+grossPP.toFixed(2);
+  document.getElementById('fedTax').textContent = '$'+(fed/freq).toFixed(2);
+  document.getElementById('stTax').textContent = '$'+(state/freq).toFixed(2);
+  document.getElementById('ssTax').textContent = '$'+(ss/freq).toFixed(2);
+  document.getElementById('medTax').textContent = '$'+(med/freq).toFixed(2);
+  document.getElementById('annualNet').textContent = '$'+annualNet.toFixed(2);
+  document.getElementById('result').classList.add('show');
+}
+calc();
+</script>
+</body>
+</html>

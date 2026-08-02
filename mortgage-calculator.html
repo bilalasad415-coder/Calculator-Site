@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortgage Calculator - Monthly Payment & Amortization</title>
+<meta name="description" content="Free mortgage calculator. Estimate your monthly payment, total interest, and view an amortization schedule for any home loan.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:800px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 28px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:40px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  table{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px;}
+  th,td{padding:8px 6px;text-align:right;border-bottom:1px solid var(--line);}
+  th:first-child,td:first-child{text-align:left;}
+  th{color:var(--teal);text-transform:uppercase;font-size:11px;letter-spacing:.4px;}
+  .schedule{max-height:320px;overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;display:none;}
+  .schedule.show{display:block;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mortgage Calculator</h1>
+  <p class="sub">Estimate your monthly payment, total interest, and see a full amortization schedule.</p>
+
+  <div class="card">
+    <label for="price">Home Price ($)</label>
+    <input type="number" id="price" value="350000">
+
+    <div class="row">
+      <div>
+        <label for="down">Down Payment ($)</label>
+        <input type="number" id="down" value="70000">
+      </div>
+      <div>
+        <label for="rate">Interest Rate (% APR)</label>
+        <input type="number" id="rate" step="0.01" value="6.5">
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="term">Loan Term (years)</label>
+        <select id="term">
+          <option value="30" selected>30 years</option>
+          <option value="15">15 years</option>
+          <option value="20">20 years</option>
+        </select>
+      </div>
+      <div>
+        <label for="tax">Annual Property Tax ($)</label>
+        <input type="number" id="tax" value="3500">
+      </div>
+    </div>
+
+    <button onclick="calc()">Calculate Payment</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="label">Estimated Monthly Payment</div>
+    <div class="amt" id="monthly">$0</div>
+    <div class="breakdown">
+      <div class="brow"><span>Principal & Interest</span><span id="pi">$0</span></div>
+      <div class="brow"><span>Property Tax (monthly)</span><span id="taxPP">$0</span></div>
+      <div class="brow"><span>Loan Amount</span><span id="loanAmt">$0</span></div>
+      <div class="brow"><span>Total Interest Paid</span><span id="totInt">$0</span></div>
+      <div class="brow"><span>Total Cost of Loan</span><span id="totCost">$0</span></div>
+    </div>
+  </div>
+
+  <div class="schedule" id="schedule">
+    <table>
+      <thead><tr><th>Year</th><th>Principal Paid</th><th>Interest Paid</th><th>Balance</th></tr></thead>
+      <tbody id="scheduleBody"></tbody>
+    </table>
+  </div>
+
+  <footer>Estimates only — actual payments vary with insurance, PMI, and HOA fees. Not financial advice.</footer>
+</div>
+
+<script>
+function calc(){
+  const price = parseFloat(document.getElementById('price').value)||0;
+  const down = parseFloat(document.getElementById('down').value)||0;
+  const rate = parseFloat(document.getElementById('rate').value)||0;
+  const years = parseInt(document.getElementById('term').value);
+  const annualTax = parseFloat(document.getElementById('tax').value)||0;
+
+  const principal = price-down;
+  const monthlyRate = rate/100/12;
+  const n = years*12;
+  const mPI = monthlyRate===0 ? principal/n : principal*(monthlyRate*Math.pow(1+monthlyRate,n))/(Math.pow(1+monthlyRate,n)-1);
+  const monthlyTax = annualTax/12;
+  const totalMonthly = mPI+monthlyTax;
+  const totalPaid = mPI*n;
+  const totalInterest = totalPaid-principal;
+
+  document.getElementById('monthly').textContent = '$'+totalMonthly.toFixed(2);
+  document.getElementById('pi').textContent = '$'+mPI.toFixed(2);
+  document.getElementById('taxPP').textContent = '$'+monthlyTax.toFixed(2);
+  document.getElementById('loanAmt').textContent = '$'+principal.toFixed(2);
+  document.getElementById('totInt').textContent = '$'+totalInterest.toFixed(2);
+  document.getElementById('totCost').textContent = '$'+totalPaid.toFixed(2);
+  document.getElementById('result').classList.add('show');
+
+  // amortization by year
+  let balance = principal;
+  let body = '';
+  for(let y=1;y<=years;y++){
+    let yearPrincipal=0, yearInterest=0;
+    for(let m=0;m<12;m++){
+      const interest = balance*monthlyRate;
+      const principalPaid = mPI-interest;
+      balance -= principalPaid;
+      yearPrincipal += principalPaid;
+      yearInterest += interest;
+    }
+    body += `<tr><td>${y}</td><td>$${yearPrincipal.toFixed(0)}</td><td>$${yearInterest.toFixed(0)}</td><td>$${Math.max(0,balance).toFixed(0)}</td></tr>`;
+  }
+  document.getElementById('scheduleBody').innerHTML = body;
+  document.getElementById('schedule').classList.add('show');
+}
+calc();
+</script>
+</body>
+</html>

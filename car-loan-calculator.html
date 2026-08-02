@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Loan Calculator - Monthly Auto Payment Estimator</title>
+<meta name="description" content="Free car loan calculator. Estimate your monthly auto payment, total interest, and total cost including trade-in and sales tax.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:760px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 28px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:40px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Car Loan Calculator</h1>
+  <p class="sub">Estimate your monthly auto payment including trade-in value and sales tax.</p>
+
+  <div class="card">
+    <label for="price">Vehicle Price ($)</label>
+    <input type="number" id="price" value="28000">
+
+    <div class="row">
+      <div>
+        <label for="down">Down Payment ($)</label>
+        <input type="number" id="down" value="3000">
+      </div>
+      <div>
+        <label for="trade">Trade-In Value ($)</label>
+        <input type="number" id="trade" value="0">
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="rate">Interest Rate (% APR)</label>
+        <input type="number" id="rate" step="0.01" value="6.9">
+      </div>
+      <div>
+        <label for="tax">Sales Tax (%)</label>
+        <input type="number" id="tax" step="0.1" value="7">
+      </div>
+    </div>
+
+    <label for="term">Loan Term</label>
+    <select id="term">
+      <option value="36">36 months</option>
+      <option value="48">48 months</option>
+      <option value="60" selected>60 months</option>
+      <option value="72">72 months</option>
+    </select>
+
+    <button onclick="calc()">Calculate Payment</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="label">Estimated Monthly Payment</div>
+    <div class="amt" id="monthly">$0</div>
+    <div class="breakdown">
+      <div class="brow"><span>Amount Financed</span><span id="financed">$0</span></div>
+      <div class="brow"><span>Sales Tax</span><span id="taxAmt">$0</span></div>
+      <div class="brow"><span>Total Interest Paid</span><span id="totInt">$0</span></div>
+      <div class="brow"><span>Total Cost of Loan</span><span id="totCost">$0</span></div>
+    </div>
+  </div>
+
+  <footer>Estimates only — actual rates depend on credit score and lender. Not financial advice.</footer>
+</div>
+
+<script>
+function calc(){
+  const price = parseFloat(document.getElementById('price').value)||0;
+  const down = parseFloat(document.getElementById('down').value)||0;
+  const trade = parseFloat(document.getElementById('trade').value)||0;
+  const rate = parseFloat(document.getElementById('rate').value)||0;
+  const taxPct = parseFloat(document.getElementById('tax').value)||0;
+  const months = parseInt(document.getElementById('term').value);
+
+  const taxAmt = price*(taxPct/100);
+  const financed = Math.max(0, price+taxAmt-down-trade);
+  const monthlyRate = rate/100/12;
+  const payment = monthlyRate===0 ? financed/months : financed*(monthlyRate*Math.pow(1+monthlyRate,months))/(Math.pow(1+monthlyRate,months)-1);
+  const totalPaid = payment*months;
+  const totalInterest = totalPaid-financed;
+
+  document.getElementById('monthly').textContent = '$'+payment.toFixed(2);
+  document.getElementById('financed').textContent = '$'+financed.toFixed(2);
+  document.getElementById('taxAmt').textContent = '$'+taxAmt.toFixed(2);
+  document.getElementById('totInt').textContent = '$'+totalInterest.toFixed(2);
+  document.getElementById('totCost').textContent = '$'+(totalPaid+down+trade).toFixed(2);
+  document.getElementById('result').classList.add('show');
+}
+calc();
+</script>
+</body>
+</html>

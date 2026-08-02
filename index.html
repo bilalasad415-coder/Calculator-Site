@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Calculators — Every calculation, one place</title>
-  <meta name="description" content="Free online calculators for every need. Calculate age, percentage, BMI, finance, health, math, conversions and more with fast, accurate and easy-to-use calculators.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -18,6 +17,7 @@
     --amber:#e8a33d;
     --teal:#4fd1c5;
     --violet:#9b8cf2;
+    --sky:#5aa9e6;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{
@@ -131,6 +131,8 @@
   .cat-health .tag{color:var(--teal);}
   .cat-math .card:hover{border-color:var(--violet);}
   .cat-math .tag{color:var(--violet);}
+  .cat-global .card:hover{border-color:var(--sky);}
+  .cat-global .tag{color:var(--sky);}
 
   footer{
     border-top:1px solid var(--line);
@@ -284,6 +286,15 @@
         </div>
       </div>
       <div class="nav-group">
+        <button class="nav-cat" type="button">Global <span class="arrow">&#9660;</span></button>
+        <div class="nav-drop">
+          <a href="/us-paycheck-calculator.html">US Paycheck Calculator</a>
+          <a href="/uk-take-home-pay-calculator.html">UK Take-Home Pay</a>
+          <a href="/mortgage-calculator.html">Mortgage Calculator</a>
+          <a href="/car-loan-calculator.html">Car Loan Calculator</a>
+        </div>
+      </div>
+      <div class="nav-group">
         <button class="nav-cat" type="button">Math &amp; Everyday <span class="arrow">&#9660;</span></button>
         <div class="nav-drop">
           <a href="/unit-converter.html">Unit Converter</a>
@@ -410,7 +421,7 @@
       <input type="text" id="calcSearch" placeholder="Search calculators... e.g. EMI, BMI, GPA, Tip">
     </div>
     <div class="stats-bar">
-      <span><strong id="totalCount">25</strong> free tools</span>
+      <span><strong id="totalCount">29</strong> free tools</span>
       <span>&middot;</span>
       <span>No signup</span>
       <span>&middot;</span>
@@ -495,6 +506,33 @@
         <span class="tag">Interest</span>
         <h3>Simple Interest Calculator</h3>
         <p>Quick interest without compounding</p>
+      </a>
+    </div>
+
+    <div class="cat-head">
+      <h2>&#127760; Global</h2>
+      <span class="count">04 tools</span>
+    </div>
+    <div class="grid cat-global">
+      <a class="card" href="/us-paycheck-calculator.html">
+        <span class="tag">USA</span>
+        <h3>US Paycheck Calculator</h3>
+        <p>Take-home pay after federal, state tax, FICA</p>
+      </a>
+      <a class="card" href="/uk-take-home-pay-calculator.html">
+        <span class="tag">UK</span>
+        <h3>UK Take-Home Pay Calculator</h3>
+        <p>Net salary after Income Tax and National Insurance</p>
+      </a>
+      <a class="card" href="/mortgage-calculator.html">
+        <span class="tag">USA</span>
+        <h3>Mortgage Calculator</h3>
+        <p>Monthly payment and full amortization schedule</p>
+      </a>
+      <a class="card" href="/car-loan-calculator.html">
+        <span class="tag">USA</span>
+        <h3>Car Loan Calculator</h3>
+        <p>Monthly auto payment with trade-in and sales tax</p>
       </a>
     </div>
 

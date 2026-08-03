@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amortization Calculator - Loan Schedule with Extra Payments</title>
+<meta name="description" content="Free amortization calculator with a full payment schedule. Compare standard payoff vs. extra payments and see how much interest and time you can save.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:840px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .tab{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#FCFBF8;color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  .card h2{font-family:Georgia,serif;font-size:18px;color:var(--navy);margin:0 0 4px;}
+  .card .desc{color:var(--muted);font-size:13px;margin-bottom:16px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+  @media(max-width:520px){.row3{grid-template-columns:1fr;}}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:38px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  .savings-row{background:var(--gold);color:var(--navy);font-weight:700;}
+  .toggle-group{display:flex;gap:8px;margin-top:6px;}
+  .toggle-btn{flex:1;padding:10px;text-align:center;border:1px solid var(--line);border-radius:7px;background:#FCFBF8;cursor:pointer;font-weight:600;color:var(--teal);font-size:14px;}
+  .toggle-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  table{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px;}
+  th,td{padding:8px 6px;text-align:right;border-bottom:1px solid var(--line);}
+  th:first-child,td:first-child{text-align:left;}
+  th{color:var(--teal);text-transform:uppercase;font-size:11px;letter-spacing:.4px;position:sticky;top:0;background:var(--card);}
+  .schedule{max-height:400px;overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;display:none;}
+  .schedule.show{display:block;}
+  .content{margin-top:36px;}
+  .content h2{font-family:Georgia,serif;font-size:22px;color:var(--navy);margin:32px 0 12px;}
+  .content h3{font-size:16px;color:var(--teal);margin:20px 0 8px;}
+  .content p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0 0 12px;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Amortization Calculator</h1>
+  <p class="sub">See your full payment schedule, and compare it against paying extra toward principal each month.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="standard" onclick="showTab('standard')">Standard Schedule</div>
+    <div class="tab" data-tab="extra" onclick="showTab('extra')">With Extra Payments</div>
+  </div>
+
+  <!-- PANEL 1: Standard -->
+  <div class="panel active" id="panel-standard">
+    <div class="card">
+      <h2>Standard Amortization Schedule</h2>
+      <p class="desc">Full principal and interest breakdown for a fixed-rate loan.</p>
+
+      <label for="std_principal">Loan Amount ($)</label>
+      <input type="number" id="std_principal" value="250000">
+      <div class="row">
+        <div><label for="std_rate">Interest Rate (% APR)</label><input type="number" id="std_rate" step="0.01" value="6.5"></div>
+        <div><label for="std_years">Loan Term (years)</label><input type="number" id="std_years" value="30"></div>
+      </div>
+
+      <label>Schedule View</label>
+      <div class="toggle-group" id="std_viewToggle">
+        <div class="toggle-btn active" data-view="year" onclick="setStdView('year')">Yearly</div>
+        <div class="toggle-btn" data-view="month" onclick="setStdView('month')">Monthly (first 12)</div>
+      </div>
+
+      <button onclick="calcStandard()">Generate Schedule</button>
+    </div>
+    <div class="result" id="std_result">
+      <div class="label">Monthly Payment</div>
+      <div class="amt" id="std_payment">$0</div>
+      <div class="breakdown">
+        <div class="brow"><span>Total Payments</span><span id="std_numPayments">0</span></div>
+        <div class="brow"><span>Total Interest Paid</span><span id="std_totInt">$0</span></div>
+        <div class="brow"><span>Total Cost of Loan</span><span id="std_totCost">$0</span></div>
+      </div>
+    </div>
+    <div class="schedule" id="std_schedule">
+      <table>
+        <thead><tr id="std_tableHead"><th>Year</th><th>Principal Paid</th><th>Interest Paid</th><th>Balance</th></tr></thead>
+        <tbody id="std_scheduleBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PANEL 2: Extra payments -->
+  <div class="panel" id="panel-extra">
+    <div class="card">
+      <h2>Payoff With Extra Payments</h2>
+      <p class="desc">See how much time and interest an extra monthly payment toward principal can save.</p>
+
+      <label for="ex_principal">Loan Amount ($)</label>
+      <input type="number" id="ex_principal" value="250000">
+      <div class="row">
+        <div><label for="ex_rate">Interest Rate (% APR)</label><input type="number" id="ex_rate" step="0.01" value="6.5"></div>
+        <div><label for="ex_years">Loan Term (years)</label><input type="number" id="ex_years" value="30"></div>
+      </div>
+      <label for="ex_extra">Extra Monthly Payment ($)</label>
+      <input type="number" id="ex_extra" value="200">
+
+      <button onclick="calcExtra()">Compare Payoff</button>
+    </div>
+    <div class="result" id="ex_result">
+      <div class="label">New Payoff Time</div>
+      <div class="amt" id="ex_newTime">0 years</div>
+      <div class="breakdown">
+        <div class="brow"><span>Original Payoff Time</span><span id="ex_origTime">0</span></div>
+        <div class="brow"><span>Time Saved</span><span id="ex_timeSaved">0</span></div>
+        <div class="brow savings-row"><span>Interest Saved</span><span id="ex_interestSaved">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Estimates only, for fixed-rate amortizing loans. Not financial advice.</footer>
+
+  <div class="content">
+    <h2>How Amortization Works</h2>
+    <p>An amortizing loan is repaid through equal periodic payments, but the split between principal and interest shifts over the loan's life. Early payments are mostly interest, since interest is charged on a large remaining balance. As the balance shrinks, more of each payment goes toward principal, even though the payment amount itself stays the same.</p>
+    <p>This is why paying off the first few years of a 30-year mortgage barely dents the balance — most of what you're paying is the cost of borrowing, not the debt itself.</p>
+
+    <h3>Why the Payment Stays Fixed</h3>
+    <p>Lenders calculate a fixed payment upfront using the loan amount, rate, and term, so that the final payment brings the balance to exactly zero. This predictability is useful for budgeting, but it also means borrowers build equity slowly in the early years compared to later ones.</p>
+
+    <h2>How Extra Payments Change the Math</h2>
+    <p>Any extra amount paid toward principal reduces the balance immediately, which reduces the interest charged on every subsequent payment. Because interest compounds against the outstanding balance, even a modest extra payment early in the loan can save far more in total interest than the same extra payment made later — the savings compound over more remaining months.</p>
+    <p>This is also why biweekly payment plans (paying half the monthly amount every two weeks) can shave years off a loan: over a year, that structure results in one extra full payment compared to standard monthly payments.</p>
+
+    <h3>When Extra Payments Make Sense</h3>
+    <p>Extra principal payments are most valuable when the loan's interest rate is higher than what the same money could reasonably earn elsewhere, and when there's no prepayment penalty. For low-rate loans, some borrowers choose to invest the difference instead — which one comes out ahead depends on the rate and the investment's expected return, and there is no universally correct answer.</p>
+  </div>
+</div>
+
+<script>
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+let stdView = 'year';
+function setStdView(v){
+  stdView = v;
+  document.querySelectorAll('#std_viewToggle .toggle-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
+  calcStandard();
+}
+
+function calcStandard(){
+  const principal = +document.getElementById('std_principal').value||0;
+  const rate = +document.getElementById('std_rate').value||0;
+  const years = +document.getElementById('std_years').value||0;
+  const monthlyRate = rate/100/12;
+  const n = years*12;
+  const payment = monthlyRate===0 ? principal/n : principal*(monthlyRate*Math.pow(1+monthlyRate,n))/(Math.pow(1+monthlyRate,n)-1);
+  const totalPaid = payment*n;
+  const totalInterest = totalPaid-principal;
+
+  document.getElementById('std_payment').textContent = '$'+payment.toFixed(2);
+  document.getElementById('std_numPayments').textContent = n;
+  document.getElementById('std_totInt').textContent = '$'+totalInterest.toFixed(2);
+  document.getElementById('std_totCost').textContent = '$'+totalPaid.toFixed(2);
+  document.getElementById('std_result').classList.add('show');
+
+  let balance = principal;
+  let body = '';
+  const head = document.getElementById('std_tableHead');
+
+  if(stdView==='year'){
+    head.innerHTML = '<th>Year</th><th>Principal Paid</th><th>Interest Paid</th><th>Balance</th>';
+    for(let y=1;y<=years;y++){
+      let yearPrincipal=0, yearInterest=0;
+      for(let m=0;m<12;m++){
+        const interest = balance*monthlyRate;
+        const principalPaid = payment-interest;
+        balance -= principalPaid;
+        yearPrincipal += principalPaid;
+        yearInterest += interest;
+      }
+      body += `<tr><td>${y}</td><td>$${yearPrincipal.toFixed(0)}</td><td>$${yearInterest.toFixed(0)}</td><td>$${Math.max(0,balance).toFixed(0)}</td></tr>`;
+    }
+  } else {
+    head.innerHTML = '<th>Month</th><th>Principal Paid</th><th>Interest Paid</th><th>Balance</th>';
+    for(let m=1;m<=Math.min(12,n);m++){
+      const interest = balance*monthlyRate;
+      const principalPaid = payment-interest;
+      balance -= principalPaid;
+      body += `<tr><td>${m}</td><td>$${principalPaid.toFixed(2)}</td><td>$${interest.toFixed(2)}</td><td>$${Math.max(0,balance).toFixed(2)}</td></tr>`;
+    }
+  }
+  document.getElementById('std_scheduleBody').innerHTML = body;
+  document.getElementById('std_schedule').classList.add('show');
+}
+
+function payoffMonths(principal, monthlyRate, payment){
+  let balance = principal;
+  let months = 0;
+  while(balance>0 && months<1200){
+    const interest = balance*monthlyRate;
+    balance += interest;
+    balance -= payment;
+    months++;
+  }
+  return months;
+}
+
+function calcExtra(){
+  const principal = +document.getElementById('ex_principal').value||0;
+  const rate = +document.getElementById('ex_rate').value||0;
+  const years = +document.getElementById('ex_years').value||0;
+  const extra = +document.getElementById('ex_extra').value||0;
+  const monthlyRate = rate/100/12;
+  const n = years*12;
+  const basePayment = monthlyRate===0 ? principal/n : principal*(monthlyRate*Math.pow(1+monthlyRate,n))/(Math.pow(1+monthlyRate,n)-1);
+
+  const origTotalInterest = basePayment*n-principal;
+
+  const newMonths = payoffMonths(principal, monthlyRate, basePayment+extra);
+  let balance = principal;
+  let totalPaidNew = 0;
+  for(let m=0;m<newMonths;m++){
+    const interest = balance*monthlyRate;
+    balance += interest;
+    const pay = Math.min(basePayment+extra, balance);
+    balance -= pay;
+    totalPaidNew += pay;
+  }
+  const newTotalInterest = totalPaidNew-principal;
+  const interestSaved = origTotalInterest-newTotalInterest;
+  const monthsSaved = n-newMonths;
+
+  document.getElementById('ex_newTime').textContent = (newMonths/12).toFixed(1)+' years';
+  document.getElementById('ex_origTime').textContent = years+' years';
+  document.getElementById('ex_timeSaved').textContent = (monthsSaved/12).toFixed(1)+' years';
+  document.getElementById('ex_interestSaved').textContent = '$'+interestSaved.toFixed(0);
+  document.getElementById('ex_result').classList.add('show');
+}
+
+calcStandard();
+</script>
+</body>
+</html>

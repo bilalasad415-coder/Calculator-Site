@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retirement Calculator - Plan Savings, Withdrawals & How Long Money Lasts</title>
+<meta name="description" content="Free retirement calculator with 4 tools: how much you need to retire, how to save for it, how much you can withdraw, and how long your money will last. Includes inflation and life expectancy.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .tab{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#FCFBF8;color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  .card h2{font-family:Georgia,serif;font-size:18px;color:var(--navy);margin:0 0 4px;}
+  .card .desc{color:var(--muted);font-size:13px;margin-bottom:16px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+  @media(max-width:520px){.row3{grid-template-columns:1fr;}}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:38px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  .content{margin-top:36px;}
+  .content h2{font-family:Georgia,serif;font-size:22px;color:var(--navy);margin:32px 0 12px;}
+  .content h3{font-size:16px;color:var(--teal);margin:20px 0 8px;}
+  .content p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0 0 12px;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Retirement Calculator</h1>
+  <p class="sub">Plan your retirement four ways — savings target, contribution plan, safe withdrawal, and how long your money lasts.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="need" onclick="showTab('need')">How Much You Need</div>
+    <div class="tab" data-tab="save" onclick="showTab('save')">How to Save</div>
+    <div class="tab" data-tab="withdraw" onclick="showTab('withdraw')">Withdrawal Amount</div>
+    <div class="tab" data-tab="last" onclick="showTab('last')">How Long It Lasts</div>
+  </div>
+
+  <!-- PANEL 1: How much you need -->
+  <div class="panel active" id="panel-need">
+    <div class="card">
+      <h2>How much do you need to retire?</h2>
+      <p class="desc">Projects your savings gap based on income, inflation, and expected returns.</p>
+
+      <div class="row3">
+        <div><label for="n_age">Current Age</label><input type="number" id="n_age" value="30"></div>
+        <div><label for="n_retireAge">Retirement Age</label><input type="number" id="n_retireAge" value="65"></div>
+        <div><label for="n_life">Life Expectancy</label><input type="number" id="n_life" value="85"></div>
+      </div>
+      <label for="n_income">Current Pre-Tax Income ($/year)</label>
+      <input type="number" id="n_income" value="70000">
+      <div class="row3">
+        <div><label for="n_raise">Income Growth (%/yr)</label><input type="number" id="n_raise" value="2" step="0.1"></div>
+        <div><label for="n_needPct">Income Needed After (% of current)</label><input type="number" id="n_needPct" value="80"></div>
+        <div><label for="n_return">Investment Return (%/yr)</label><input type="number" id="n_return" value="7" step="0.1"></div>
+      </div>
+      <div class="row">
+        <div><label for="n_inflation">Inflation Rate (%/yr)</label><input type="number" id="n_inflation" value="2.5" step="0.1"></div>
+        <div><label for="n_other">Other Income After Retirement ($/month)</label><input type="number" id="n_other" value="0"></div>
+      </div>
+      <label for="n_current">Current Retirement Savings ($)</label>
+      <input type="number" id="n_current" value="20000">
+
+      <button onclick="calcNeed()">Calculate Savings Needed</button>
+    </div>
+    <div class="result" id="n_result">
+      <div class="label">Nest Egg Needed at Retirement</div>
+      <div class="amt" id="n_target">$0</div>
+      <div class="breakdown">
+        <div class="brow"><span>Projected Savings at Current Rate</span><span id="n_projected">$0</span></div>
+        <div class="brow"><span>Shortfall / Surplus</span><span id="n_gap">$0</span></div>
+        <div class="brow"><span>Years to Retirement</span><span id="n_years">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 2: How to save -->
+  <div class="panel" id="panel-save">
+    <div class="card">
+      <h2>How can you save for retirement?</h2>
+      <p class="desc">Works out the monthly contribution needed to hit a savings target.</p>
+
+      <div class="row">
+        <div><label for="s_age">Current Age</label><input type="number" id="s_age" value="30"></div>
+        <div><label for="s_retireAge">Retirement Age</label><input type="number" id="s_retireAge" value="65"></div>
+      </div>
+      <label for="s_goal">Amount Needed at Retirement ($)</label>
+      <input type="number" id="s_goal" value="1500000">
+      <div class="row">
+        <div><label for="s_current">Current Retirement Savings ($)</label><input type="number" id="s_current" value="20000"></div>
+        <div><label for="s_return">Average Investment Return (%/yr)</label><input type="number" id="s_return" value="7" step="0.1"></div>
+      </div>
+
+      <button onclick="calcSave()">Calculate Monthly Savings Needed</button>
+    </div>
+    <div class="result" id="s_result">
+      <div class="label">Required Monthly Contribution</div>
+      <div class="amt" id="s_monthly">$0</div>
+      <div class="breakdown">
+        <div class="brow"><span>Years to Save</span><span id="s_years">0</span></div>
+        <div class="brow"><span>Total You'll Contribute</span><span id="s_totalContrib">$0</span></div>
+        <div class="brow"><span>Total Growth (Interest)</span><span id="s_growth">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 3: Withdrawal amount -->
+  <div class="panel" id="panel-withdraw">
+    <div class="card">
+      <h2>How much can you withdraw after retirement?</h2>
+      <p class="desc">Estimates a sustainable monthly withdrawal so savings last through your life expectancy.</p>
+
+      <div class="row3">
+        <div><label for="w_age">Current Age</label><input type="number" id="w_age" value="30"></div>
+        <div><label for="w_retireAge">Retirement Age</label><input type="number" id="w_retireAge" value="65"></div>
+        <div><label for="w_life">Life Expectancy</label><input type="number" id="w_life" value="85"></div>
+      </div>
+      <div class="row">
+        <div><label for="w_current">Retirement Savings Today ($)</label><input type="number" id="w_current" value="20000"></div>
+        <div><label for="w_monthly">Monthly Contribution ($)</label><input type="number" id="w_monthly" value="500"></div>
+      </div>
+      <div class="row">
+        <div><label for="w_return">Investment Return (%/yr)</label><input type="number" id="w_return" value="7" step="0.1"></div>
+        <div><label for="w_inflation">Inflation Rate (%/yr)</label><input type="number" id="w_inflation" value="2.5" step="0.1"></div>
+      </div>
+
+      <button onclick="calcWithdraw()">Calculate Monthly Withdrawal</button>
+    </div>
+    <div class="result" id="w_result">
+      <div class="label">Sustainable Monthly Withdrawal</div>
+      <div class="amt" id="w_amount">$0</div>
+      <div class="breakdown">
+        <div class="brow"><span>Balance at Retirement</span><span id="w_balance">$0</span></div>
+        <div class="brow"><span>Years in Retirement</span><span id="w_retYears">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 4: How long money lasts -->
+  <div class="panel" id="panel-last">
+    <div class="card">
+      <h2>How long can your money last?</h2>
+      <p class="desc">Given a fixed withdrawal rate, estimates how many years your savings will stretch.</p>
+
+      <label for="l_amount">Amount You Have ($)</label>
+      <input type="number" id="l_amount" value="500000">
+      <div class="row">
+        <div><label for="l_withdraw">Monthly Withdrawal ($)</label><input type="number" id="l_withdraw" value="2500"></div>
+        <div><label for="l_return">Investment Return (%/yr)</label><input type="number" id="l_return" value="5" step="0.1"></div>
+      </div>
+
+      <button onclick="calcLast()">Calculate How Long It Lasts</button>
+    </div>
+    <div class="result" id="l_result">
+      <div class="label">Your Money Will Last</div>
+      <div class="amt" id="l_years">0 years</div>
+      <div class="breakdown">
+        <div class="brow"><span>Total Withdrawn</span><span id="l_total">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Estimates only, based on constant assumed rates of return and inflation. Not financial advice — consult a licensed advisor for retirement planning.</footer>
+
+  <div class="content">
+    <h2>How Much Should You Save for Retirement?</h2>
+    <p>There is no single right answer, since it depends on your income needs, life expectancy, health, and whether you'll have Social Security or a pension to lean on. A few widely used rules of thumb can help set a starting target.</p>
+
+    <h3>The 10% Rule</h3>
+    <p>Save 10% to 15% of pre-tax income every working year. Starting at age 25, consistently saving 10% can realistically build toward a seven-figure nest egg by retirement, assuming steady market returns over that time.</p>
+
+    <h3>The 80% Rule</h3>
+    <p>Most retirees can maintain their standard of living on 70-80% of their pre-retirement income, since expenses like commuting, work wardrobes, and retirement contributions disappear. Someone earning $100,000 a year while working might need $70,000-$80,000 a year in retirement.</p>
+
+    <h3>The 4% Rule</h3>
+    <p>Divide your desired annual retirement income by 4% to estimate the total nest egg required. Wanting $80,000 a year means targeting roughly $2 million saved, under the assumption that withdrawing 4% annually keeps the portfolio from running out over a typical 30-year retirement.</p>
+
+    <h2>Why Inflation Matters for Retirement Planning</h2>
+    <p>Inflation quietly erodes purchasing power over decades. At an average of around 2.5% a year, prices roughly double every 28 years — so a dollar saved today buys noticeably less by the time most people retire. This is why retirement calculators that only project a savings balance without adjusting for inflation tend to overstate how comfortable that balance will actually feel decades from now.</p>
+
+    <h2>Common Sources of Retirement Income</h2>
+    <p><strong>Employer-sponsored plans (401k, 403b):</strong> Contributions are often matched partially by employers, and grow tax-deferred until withdrawal. Contributing at least enough to capture the full employer match is generally considered the highest-value first step in retirement saving.</p>
+    <p><strong>IRAs and Roth IRAs:</strong> Traditional IRAs are funded pre-tax and taxed on withdrawal; Roth IRAs are funded with after-tax dollars and withdrawn tax-free, which can be valuable for those expecting to be in a similar or higher tax bracket in retirement.</p>
+    <p><strong>Social Security or state pensions:</strong> In the US, Social Security is designed to replace only about 40% of pre-retirement income for the average worker, which is why it's rarely treated as a sole retirement strategy.</p>
+    <p><strong>Personal investments and savings:</strong> Index funds, individual stocks, real estate, and other taxable investments fill the gap once tax-advantaged accounts are maxed out.</p>
+  </div>
+</div>
+
+<script>
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+function calcNeed(){
+  const age = +document.getElementById('n_age').value;
+  const retireAge = +document.getElementById('n_retireAge').value;
+  const life = +document.getElementById('n_life').value;
+  const income = +document.getElementById('n_income').value;
+  const raise = +document.getElementById('n_raise').value/100;
+  const needPct = +document.getElementById('n_needPct').value/100;
+  const returnRate = +document.getElementById('n_return').value/100;
+  const inflation = +document.getElementById('n_inflation').value/100;
+  const otherMonthly = +document.getElementById('n_other').value;
+  const current = +document.getElementById('n_current').value;
+
+  const yearsToRetire = Math.max(0, retireAge-age);
+  const yearsInRetirement = Math.max(1, life-retireAge);
+  const incomeAtRetirement = income*Math.pow(1+raise, yearsToRetire);
+  const neededAnnual = incomeAtRetirement*needPct - otherMonthly*12;
+  const realReturn = (1+returnRate)/(1+inflation)-1;
+  // present value of an annuity for retirement withdrawal, at retirement date
+  const targetAtRetirement = realReturn<=0 ? neededAnnual*yearsInRetirement : neededAnnual*(1-Math.pow(1+realReturn,-yearsInRetirement))/realReturn;
+
+  const projected = current*Math.pow(1+returnRate, yearsToRetire);
+  const gap = projected-targetAtRetirement;
+
+  document.getElementById('n_target').textContent = '$'+targetAtRetirement.toFixed(0);
+  document.getElementById('n_projected').textContent = '$'+projected.toFixed(0);
+  document.getElementById('n_gap').textContent = (gap>=0?'+$':'-$')+Math.abs(gap).toFixed(0);
+  document.getElementById('n_years').textContent = yearsToRetire;
+  document.getElementById('n_result').classList.add('show');
+}
+
+function calcSave(){
+  const age = +document.getElementById('s_age').value;
+  const retireAge = +document.getElementById('s_retireAge').value;
+  const goal = +document.getElementById('s_goal').value;
+  const current = +document.getElementById('s_current').value;
+  const returnRate = +document.getElementById('s_return').value/100;
+
+  const years = Math.max(0, retireAge-age);
+  const months = years*12;
+  const monthlyRate = returnRate/12;
+  const futureOfCurrent = current*Math.pow(1+monthlyRate, months);
+  const remainingGoal = Math.max(0, goal-futureOfCurrent);
+  const monthlyNeeded = monthlyRate===0 ? remainingGoal/months : remainingGoal*monthlyRate/(Math.pow(1+monthlyRate,months)-1);
+
+  const totalContrib = monthlyNeeded*months;
+  const growth = goal-current-totalContrib;
+
+  document.getElementById('s_monthly').textContent = '$'+monthlyNeeded.toFixed(2);
+  document.getElementById('s_years').textContent = years;
+  document.getElementById('s_totalContrib').textContent = '$'+totalContrib.toFixed(0);
+  document.getElementById('s_growth').textContent = '$'+growth.toFixed(0);
+  document.getElementById('s_result').classList.add('show');
+}
+
+function calcWithdraw(){
+  const age = +document.getElementById('w_age').value;
+  const retireAge = +document.getElementById('w_retireAge').value;
+  const life = +document.getElementById('w_life').value;
+  const current = +document.getElementById('w_current').value;
+  const monthlyContrib = +document.getElementById('w_monthly').value;
+  const returnRate = +document.getElementById('w_return').value/100;
+  const inflation = +document.getElementById('w_inflation').value/100;
+
+  const yearsToRetire = Math.max(0, retireAge-age);
+  const monthsToRetire = yearsToRetire*12;
+  const monthlyRate = returnRate/12;
+
+  let balance = current;
+  for(let m=0;m<monthsToRetire;m++){
+    balance += monthlyContrib;
+    balance *= (1+monthlyRate);
+  }
+
+  const yearsInRetirement = Math.max(1, life-retireAge);
+  const realReturn = (1+returnRate)/(1+inflation)-1;
+  const monthlyReal = realReturn/12;
+  const monthsInRetirement = yearsInRetirement*12;
+  const monthlyWithdrawal = monthlyReal<=0 ? balance/monthsInRetirement : balance*monthlyReal/(1-Math.pow(1+monthlyReal,-monthsInRetirement));
+
+  document.getElementById('w_amount').textContent = '$'+monthlyWithdrawal.toFixed(2);
+  document.getElementById('w_balance').textContent = '$'+balance.toFixed(0);
+  document.getElementById('w_retYears').textContent = yearsInRetirement;
+  document.getElementById('w_result').classList.add('show');
+}
+
+function calcLast(){
+  const amount = +document.getElementById('l_amount').value;
+  const withdraw = +document.getElementById('l_withdraw').value;
+  const returnRate = +document.getElementById('l_return').value/100;
+  const monthlyRate = returnRate/12;
+
+  let balance = amount;
+  let months = 0;
+  let totalWithdrawn = 0;
+  while(balance>0 && months<1200){
+    balance *= (1+monthlyRate);
+    balance -= withdraw;
+    totalWithdrawn += withdraw;
+    months++;
+  }
+
+  const years = months/12;
+  document.getElementById('l_years').textContent = months>=1200 ? '100+ years (effectively indefinite)' : years.toFixed(1)+' years';
+  document.getElementById('l_total').textContent = '$'+totalWithdrawn.toFixed(0);
+  document.getElementById('l_result').classList.add('show');
+}
+
+calcNeed();
+</script>
+</body>
+</html>

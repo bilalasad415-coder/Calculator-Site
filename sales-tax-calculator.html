@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Tax Calculator - Add or Remove Tax From a Price</title>
+<meta name="description" content="Free sales tax calculator. Add sales tax to a price, or reverse-calculate the pre-tax price and tax rate from a total.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .tab{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#FCFBF8;color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .panel{display:none;} .panel.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  .card h2{font-family:Georgia,serif;font-size:18px;color:var(--navy);margin:0 0 4px;}
+  .card .desc{color:var(--muted);font-size:13px;margin-bottom:16px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:38px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  .content{margin-top:36px;}
+  .content h2{font-family:Georgia,serif;font-size:22px;color:var(--navy);margin:32px 0 12px;}
+  .content h3{font-size:16px;color:var(--teal);margin:20px 0 8px;}
+  .content p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0 0 12px;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Sales Tax Calculator</h1>
+  <p class="sub">Add tax to a price, or work backward from a total to find the pre-tax price or the tax rate.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="add" onclick="showTab('add')">Add Tax to Price</div>
+    <div class="tab" data-tab="reverse" onclick="showTab('reverse')">Find Pre-Tax Price</div>
+    <div class="tab" data-tab="findrate" onclick="showTab('findrate')">Find Tax Rate</div>
+  </div>
+
+  <div class="panel active" id="panel-add">
+    <div class="card">
+      <h2>Add Sales Tax to a Price</h2>
+      <p class="desc">Calculates the final price including sales tax.</p>
+      <label for="a_price">Price Before Tax ($)</label>
+      <input type="number" id="a_price" value="100">
+      <label for="a_rate">Sales Tax Rate (%)</label>
+      <input type="number" id="a_rate" value="7" step="0.01">
+      <button onclick="calcAdd()">Calculate Total Price</button>
+    </div>
+    <div class="result" id="a_result">
+      <div class="label">Total Price (With Tax)</div>
+      <div class="amt" id="a_total">$0</div>
+      <div class="breakdown">
+        <div class="brow"><span>Tax Amount</span><span id="a_tax">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-reverse">
+    <div class="card">
+      <h2>Find the Pre-Tax Price</h2>
+      <p class="desc">Given a total that already includes tax, finds the original pre-tax price.</p>
+      <label for="r_total">Total Price (With Tax) ($)</label>
+      <input type="number" id="r_total" value="107">
+      <label for="r_rate">Sales Tax Rate (%)</label>
+      <input type="number" id="r_rate" value="7" step="0.01">
+      <button onclick="calcReverse()">Calculate Pre-Tax Price</button>
+    </div>
+    <div class="result" id="r_result">
+      <div class="label">Price Before Tax</div>
+      <div class="amt" id="r_price">$0</div>
+      <div class="breakdown">
+        <div class="brow"><span>Tax Amount</span><span id="r_tax">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-findrate">
+    <div class="card">
+      <h2>Find the Sales Tax Rate</h2>
+      <p class="desc">Given a pre-tax price and the total paid, calculates the applied tax rate.</p>
+      <div class="row">
+        <div><label for="f_price">Price Before Tax ($)</label><input type="number" id="f_price" value="100"></div>
+        <div><label for="f_total">Total Paid ($)</label><input type="number" id="f_total" value="107"></div>
+      </div>
+      <button onclick="calcFindRate()">Calculate Tax Rate</button>
+    </div>
+    <div class="result" id="f_result">
+      <div class="label">Sales Tax Rate</div>
+      <div class="amt" id="f_rate">0%</div>
+    </div>
+  </div>
+
+  <footer>Sales tax rates vary by state, county, and city. Check your local rate for exact figures.</footer>
+
+  <div class="content">
+    <h2>How Sales Tax Works in the US</h2>
+    <p>Unlike countries with a single national VAT, the US has no federal sales tax — rates are set at the state level, and often layered with additional county and city taxes on top. This is why the same purchase can carry very different tax amounts depending on where it's made, even within the same state.</p>
+
+    <h3>States With No Sales Tax</h3>
+    <p>Five states — Alaska, Delaware, Montana, New Hampshire, and Oregon — charge no statewide sales tax, though Alaska allows local municipalities to levy their own. Everywhere else, combined state and local rates commonly range from around 4% to over 9%.</p>
+
+    <h2>What's Usually Taxed, and What Isn't</h2>
+    <p>Most tangible goods sold at retail are taxable, but many states exempt or reduce tax on necessities like groceries, prescription medication, and clothing up to a certain price. Services are taxed inconsistently across states — some tax haircuts and repairs, others don't — which is part of why sales tax calculations aren't always as simple as applying one flat rate to every purchase.</p>
+
+    <h3>Why Businesses Need to Track Tax Rates Precisely</h3>
+    <p>Sellers are generally responsible for collecting the correct tax based on where the sale occurs (or, for online sales, often where the buyer is located, under economic nexus rules that expanded significantly after the 2018 Wayfair Supreme Court decision). Getting the rate wrong — even by a fraction of a percent — can create compliance issues at audit time, which is why many businesses use address-based tax lookup tools rather than a single flat rate.</p>
+  </div>
+</div>
+
+<script>
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+function calcAdd(){
+  const price = +document.getElementById('a_price').value||0;
+  const rate = +document.getElementById('a_rate').value/100;
+  const tax = price*rate;
+  document.getElementById('a_total').textContent = '$'+(price+tax).toFixed(2);
+  document.getElementById('a_tax').textContent = '$'+tax.toFixed(2);
+  document.getElementById('a_result').classList.add('show');
+}
+
+function calcReverse(){
+  const total = +document.getElementById('r_total').value||0;
+  const rate = +document.getElementById('r_rate').value/100;
+  const price = total/(1+rate);
+  document.getElementById('r_price').textContent = '$'+price.toFixed(2);
+  document.getElementById('r_tax').textContent = '$'+(total-price).toFixed(2);
+  document.getElementById('r_result').classList.add('show');
+}
+
+function calcFindRate(){
+  const price = +document.getElementById('f_price').value||0;
+  const total = +document.getElementById('f_total').value||0;
+  const rate = ((total-price)/price)*100;
+  document.getElementById('f_rate').textContent = rate.toFixed(2)+'%';
+  document.getElementById('f_result').classList.add('show');
+}
+
+calcAdd();
+</script>
+</body>
+</html>

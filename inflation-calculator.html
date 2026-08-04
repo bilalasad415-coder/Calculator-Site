@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inflation Calculator - Purchasing Power & Future Cost</title>
+<meta name="description" content="Free inflation calculator. Find what past money is worth today, what today's money will be worth in the future, or the inflation rate between two amounts.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .tab{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#FCFBF8;color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .panel{display:none;} .panel.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  .card h2{font-family:Georgia,serif;font-size:18px;color:var(--navy);margin:0 0 4px;}
+  .card .desc{color:var(--muted);font-size:13px;margin-bottom:16px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:38px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  .content{margin-top:36px;}
+  .content h2{font-family:Georgia,serif;font-size:22px;color:var(--navy);margin:32px 0 12px;}
+  .content h3{font-size:16px;color:var(--teal);margin:20px 0 8px;}
+  .content p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0 0 12px;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Inflation Calculator</h1>
+  <p class="sub">See how prices and purchasing power change over time.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="forward" onclick="showTab('forward')">Future Cost</div>
+    <div class="tab" data-tab="backward" onclick="showTab('backward')">Past Value Today</div>
+    <div class="tab" data-tab="rate" onclick="showTab('rate')">Inflation Rate Between Amounts</div>
+  </div>
+
+  <div class="panel active" id="panel-forward">
+    <div class="card">
+      <h2>What Will Today's Money Be Worth in the Future?</h2>
+      <p class="desc">Projects the future cost of something, given an assumed inflation rate.</p>
+      <label for="fw_amount">Amount Today ($)</label>
+      <input type="number" id="fw_amount" value="1000">
+      <div class="row">
+        <div><label for="fw_years">Number of Years</label><input type="number" id="fw_years" value="20"></div>
+        <div><label for="fw_rate">Annual Inflation Rate (%)</label><input type="number" id="fw_rate" value="2.5" step="0.1"></div>
+      </div>
+      <button onclick="calcForward()">Calculate Future Cost</button>
+    </div>
+    <div class="result" id="fw_result">
+      <div class="label">Future Equivalent Cost</div>
+      <div class="amt" id="fw_total">$0</div>
+      <div class="breakdown">
+        <div class="brow"><span>Purchasing Power Lost</span><span id="fw_lost">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-backward">
+    <div class="card">
+      <h2>What Was Past Money Worth Today?</h2>
+      <p class="desc">Converts an amount from a past year into today's equivalent purchasing power.</p>
+      <label for="bw_amount">Amount in the Past ($)</label>
+      <input type="number" id="bw_amount" value="1000">
+      <div class="row">
+        <div><label for="bw_years">Years Ago</label><input type="number" id="bw_years" value="20"></div>
+        <div><label for="bw_rate">Average Annual Inflation (%)</label><input type="number" id="bw_rate" value="2.5" step="0.1"></div>
+      </div>
+      <button onclick="calcBackward()">Calculate Today's Value</button>
+    </div>
+    <div class="result" id="bw_result">
+      <div class="label">Equivalent Value Today</div>
+      <div class="amt" id="bw_total">$0</div>
+      <div class="breakdown">
+        <div class="brow"><span>Value Increase</span><span id="bw_increase">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-rate">
+    <div class="card">
+      <h2>Find the Inflation Rate Between Two Amounts</h2>
+      <p class="desc">Given a past and present price for the same item, estimates the average annual inflation rate.</p>
+      <div class="row">
+        <div><label for="rt_past">Past Amount ($)</label><input type="number" id="rt_past" value="1000"></div>
+        <div><label for="rt_present">Present Amount ($)</label><input type="number" id="rt_present" value="1650"></div>
+      </div>
+      <label for="rt_years">Number of Years Between</label>
+      <input type="number" id="rt_years" value="20">
+      <button onclick="calcRate()">Calculate Inflation Rate</button>
+    </div>
+    <div class="result" id="rt_result">
+      <div class="label">Average Annual Inflation Rate</div>
+      <div class="amt" id="rt_total">0%</div>
+    </div>
+  </div>
+
+  <footer>Estimates only, based on a constant assumed inflation rate. Actual inflation varies year to year and by category of spending.</footer>
+
+  <div class="content">
+    <h2>What Is Inflation, and Why Does It Matter?</h2>
+    <p>Inflation is the rate at which prices for goods and services rise over time, which in turn erodes how much a fixed amount of money can buy. A dollar today will almost always buy less in the future, even if the number in a bank account stays exactly the same — this is why cash sitting idle quietly loses real value.</p>
+
+    <h3>How Inflation Is Typically Measured</h3>
+    <p>In the US, the Consumer Price Index (CPI) tracks the average change in prices for a broad basket of goods and services — food, housing, transportation, medical care — and is the most commonly cited inflation figure. Since 1913, US inflation has averaged a little over 3% a year, though it has ranged from deflation to double digits in specific periods.</p>
+
+    <h2>Why Inflation Matters for Everyday Planning</h2>
+    <p>Savings held in cash or low-interest accounts effectively shrink in real terms if the interest rate earned is lower than inflation. This is a core reason long-term savings — for retirement, education, or large future purchases — are usually invested rather than left as cash, since investment returns need to outpace inflation just to preserve purchasing power, let alone grow it.</p>
+
+    <h3>Inflation and Salary Negotiations</h3>
+    <p>A raise that's smaller than the inflation rate is technically a pay cut in real terms, even though the number on the paycheck went up. This is why cost-of-living adjustments (COLAs) exist in many employment contracts and government benefit programs — they're designed to keep pace with inflation rather than represent real income growth.</p>
+  </div>
+</div>
+
+<script>
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+function calcForward(){
+  const amount = +document.getElementById('fw_amount').value||0;
+  const years = +document.getElementById('fw_years').value||0;
+  const rate = +document.getElementById('fw_rate').value/100;
+  const future = amount*Math.pow(1+rate, years);
+  document.getElementById('fw_total').textContent = '$'+future.toFixed(2);
+  document.getElementById('fw_lost').textContent = '$'+(future-amount).toFixed(2);
+  document.getElementById('fw_result').classList.add('show');
+}
+
+function calcBackward(){
+  const amount = +document.getElementById('bw_amount').value||0;
+  const years = +document.getElementById('bw_years').value||0;
+  const rate = +document.getElementById('bw_rate').value/100;
+  const today = amount*Math.pow(1+rate, years);
+  document.getElementById('bw_total').textContent = '$'+today.toFixed(2);
+  document.getElementById('bw_increase').textContent = '$'+(today-amount).toFixed(2);
+  document.getElementById('bw_result').classList.add('show');
+}
+
+function calcRate(){
+  const past = +document.getElementById('rt_past').value||0;
+  const present = +document.getElementById('rt_present').value||0;
+  const years = +document.getElementById('rt_years').value||1;
+  const rate = (Math.pow(present/past, 1/years)-1)*100;
+  document.getElementById('rt_total').textContent = rate.toFixed(2)+'%';
+  document.getElementById('rt_result').classList.add('show');
+}
+
+calcForward();
+</script>
+</body>
+</html>

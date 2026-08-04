@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interest Rate Calculator - Find APR, Simple & Compound Rate</title>
+<meta name="description" content="Free interest rate calculator. Find the interest rate on a loan from its payment, or the rate needed to grow an investment to a target amount.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .tab{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#FCFBF8;color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .panel{display:none;} .panel.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  .card h2{font-family:Georgia,serif;font-size:18px;color:var(--navy);margin:0 0 4px;}
+  .card .desc{color:var(--muted);font-size:13px;margin-bottom:16px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:38px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  .content{margin-top:36px;}
+  .content h2{font-family:Georgia,serif;font-size:22px;color:var(--navy);margin:32px 0 12px;}
+  .content h3{font-size:16px;color:var(--teal);margin:20px 0 8px;}
+  .content p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0 0 12px;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Interest Rate Calculator</h1>
+  <p class="sub">Find the interest rate on a loan payment, or the rate needed to grow savings to a goal.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="loan" onclick="showTab('loan')">Rate From Loan Payment</div>
+    <div class="tab" data-tab="savings" onclick="showTab('savings')">Rate From Savings Goal</div>
+  </div>
+
+  <div class="panel active" id="panel-loan">
+    <div class="card">
+      <h2>Find the Interest Rate on a Loan</h2>
+      <p class="desc">Given the loan amount, term, and monthly payment, solves for the annual interest rate (APR).</p>
+      <label for="l_principal">Loan Amount ($)</label>
+      <input type="number" id="l_principal" value="20000">
+      <div class="row">
+        <div><label for="l_payment">Monthly Payment ($)</label><input type="number" id="l_payment" value="450"></div>
+        <div><label for="l_term">Loan Term (months)</label><input type="number" id="l_term" value="48"></div>
+      </div>
+      <button onclick="calcLoanRate()">Calculate Interest Rate</button>
+    </div>
+    <div class="result" id="l_result">
+      <div class="label">Annual Interest Rate (APR)</div>
+      <div class="amt" id="l_rate">0%</div>
+      <div class="breakdown">
+        <div class="brow"><span>Total Paid</span><span id="l_total">$0</span></div>
+        <div class="brow"><span>Total Interest</span><span id="l_interest">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-savings">
+    <div class="card">
+      <h2>Find the Rate Needed to Reach a Savings Goal</h2>
+      <p class="desc">Given a starting amount, target amount, and time frame, solves for the required annual rate.</p>
+      <div class="row">
+        <div><label for="s_principal">Starting Amount ($)</label><input type="number" id="s_principal" value="10000"></div>
+        <div><label for="s_goal">Target Amount ($)</label><input type="number" id="s_goal" value="20000"></div>
+      </div>
+      <label for="s_years">Time Period (years)</label>
+      <input type="number" id="s_years" value="10">
+      <button onclick="calcSavingsRate()">Calculate Required Rate</button>
+    </div>
+    <div class="result" id="s_result">
+      <div class="label">Required Annual Rate</div>
+      <div class="amt" id="s_rate">0%</div>
+    </div>
+  </div>
+
+  <footer>Estimates only. Actual rates from lenders factor in credit score, fees, and other terms not captured here.</footer>
+
+  <div class="content">
+    <h2>Nominal Rate vs. APR vs. APY</h2>
+    <p>These three terms are often used loosely but mean different things. The nominal rate is the stated annual rate before compounding. APR (Annual Percentage Rate) includes certain fees and reflects the true yearly cost of borrowing, but still doesn't account for compounding within the year. APY (Annual Percentage Yield) does account for compounding, which is why a savings account advertising a rate "compounded monthly" will have a slightly higher APY than its nominal rate.</p>
+
+    <h3>Why the Distinction Matters When Comparing Offers</h3>
+    <p>Two loans with the same nominal rate can have different real costs if one compounds more frequently or carries additional origination fees rolled into the APR. Comparing APR to APR — rather than advertised rate to advertised rate — is the more reliable way to evaluate competing loan offers.</p>
+
+    <h2>How Lenders Set Interest Rates</h2>
+    <p>Rates are generally built from a base rate (often tied to a central bank's benchmark rate) plus a margin that reflects the borrower's credit risk, the loan type, and the term length. Shorter loans and borrowers with stronger credit typically qualify for lower rates, since the lender is taking on less risk of default or of the money losing value before it's repaid.</p>
+
+    <h3>Fixed vs. Variable Rates</h3>
+    <p>A fixed rate stays the same for the life of the loan, giving predictable payments. A variable rate moves with a reference index, which can mean lower payments when rates fall but higher payments — sometimes significantly — when rates rise. The right choice depends on how much payment uncertainty a borrower is willing to accept in exchange for a potentially lower starting rate.</p>
+  </div>
+</div>
+
+<script>
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+function calcLoanRate(){
+  const principal = +document.getElementById('l_principal').value||0;
+  const payment = +document.getElementById('l_payment').value||0;
+  const n = +document.getElementById('l_term').value||1;
+
+  // binary search monthly rate
+  let lo=0, hi=0.05;
+  for(let i=0;i<100;i++){
+    const mid=(lo+hi)/2;
+    const calcPayment = mid===0 ? principal/n : principal*(mid*Math.pow(1+mid,n))/(Math.pow(1+mid,n)-1);
+    if(calcPayment>payment) hi=mid; else lo=mid;
+  }
+  const monthlyRate=(lo+hi)/2;
+  const annualRate = monthlyRate*12*100;
+  const total = payment*n;
+
+  document.getElementById('l_rate').textContent = annualRate.toFixed(2)+'%';
+  document.getElementById('l_total').textContent = '$'+total.toFixed(2);
+  document.getElementById('l_interest').textContent = '$'+(total-principal).toFixed(2);
+  document.getElementById('l_result').classList.add('show');
+}
+
+function calcSavingsRate(){
+  const principal = +document.getElementById('s_principal').value||0;
+  const goal = +document.getElementById('s_goal').value||0;
+  const years = +document.getElementById('s_years').value||1;
+  const rate = (Math.pow(goal/principal, 1/years)-1)*100;
+  document.getElementById('s_rate').textContent = rate.toFixed(2)+'%';
+  document.getElementById('s_result').classList.add('show');
+}
+
+calcLoanRate();
+</script>
+</body>
+</html>

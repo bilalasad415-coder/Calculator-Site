@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pregnancy Calculator - Due Date, Conception Date & Week Tracker</title>
+<meta name="description" content="Free pregnancy calculator. Find your due date, current week, trimester, and conception date from your last period, conception date, or ultrasound.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .tab{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#FCFBF8;color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .panel{display:none;} .panel.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  .card h2{font-family:Georgia,serif;font-size:18px;color:var(--navy);margin:0 0 4px;}
+  .card .desc{color:var(--muted);font-size:13px;margin-bottom:16px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:34px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  .progress-bar{background:rgba(255,255,255,.15);border-radius:20px;height:10px;margin-top:16px;overflow:hidden;}
+  .progress-fill{background:var(--gold);height:100%;border-radius:20px;}
+  .content{margin-top:36px;}
+  .content h2{font-family:Georgia,serif;font-size:22px;color:var(--navy);margin:32px 0 12px;}
+  .content h3{font-size:16px;color:var(--teal);margin:20px 0 8px;}
+  .content p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0 0 12px;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Pregnancy Calculator</h1>
+  <p class="sub">Track your current week, trimester, and due date — from your last period, conception date, or ultrasound.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="lmp" onclick="showTab('lmp')">From Last Period</div>
+    <div class="tab" data-tab="conception" onclick="showTab('conception')">From Conception Date</div>
+    <div class="tab" data-tab="ultrasound" onclick="showTab('ultrasound')">From Ultrasound</div>
+  </div>
+
+  <div class="panel active" id="panel-lmp">
+    <div class="card">
+      <h2>Due Date From Last Period</h2>
+      <p class="desc">Uses the standard 280-day (40-week) method from the first day of your last menstrual period.</p>
+      <label for="lmp_date">First Day of Last Period</label>
+      <input type="date" id="lmp_date">
+      <label for="lmp_cycle">Average Cycle Length (days)</label>
+      <input type="number" id="lmp_cycle" value="28">
+      <button onclick="calcLMP()">Calculate Due Date</button>
+    </div>
+    <div id="lmp_out"></div>
+  </div>
+
+  <div class="panel" id="panel-conception">
+    <div class="card">
+      <h2>Due Date From Conception Date</h2>
+      <p class="desc">If you know your conception date, this adds 266 days (38 weeks) to estimate your due date.</p>
+      <label for="c_date">Conception Date</label>
+      <input type="date" id="c_date">
+      <button onclick="calcConception()">Calculate Due Date</button>
+    </div>
+    <div id="c_out"></div>
+  </div>
+
+  <div class="panel" id="panel-ultrasound">
+    <div class="card">
+      <h2>Due Date From Ultrasound</h2>
+      <p class="desc">Uses the gestational age measured at an ultrasound scan to estimate the due date.</p>
+      <label for="u_date">Date of Ultrasound</label>
+      <input type="date" id="u_date">
+      <div class="row">
+        <div><label for="u_weeks">Gestational Age — Weeks</label><input type="number" id="u_weeks" value="8"></div>
+        <div><label for="u_days">+ Days</label><input type="number" id="u_days" value="0"></div>
+      </div>
+      <button onclick="calcUltrasound()">Calculate Due Date</button>
+    </div>
+    <div id="u_out"></div>
+  </div>
+
+  <footer>Estimates only — actual delivery dates vary. Always confirm dates and progress with your healthcare provider.</footer>
+
+  <div class="content">
+    <h2>How Due Dates Are Calculated</h2>
+    <p>Pregnancy is conventionally measured as 40 weeks (280 days) from the first day of the last menstrual period, even though conception typically occurs about two weeks later. This is Naegele's Rule, the standard method used by most healthcare providers, and it assumes a regular 28-day cycle — the calculator adjusts slightly for longer or shorter cycles.</p>
+
+    <h3>Why Only About 5% of Babies Arrive on the Exact Due Date</h3>
+    <p>A due date is a statistical estimate, not a prediction — most babies are born within a two-week window on either side of it. Full term is generally defined as 39 to 40 weeks, with "early term" (37-38 weeks 6 days) and "late term" (41 weeks) also considered within a normal range by most medical guidelines.</p>
+
+    <h2>The Three Trimesters</h2>
+    <p><strong>First trimester (weeks 1-13):</strong> Covers conception through early organ development. This is when morning sickness and fatigue are most common, and when the risk of miscarriage is highest.</p>
+    <p><strong>Second trimester (weeks 14-27):</strong> Often called the most comfortable stage — energy typically returns, and fetal movement usually becomes noticeable around weeks 18-20.</p>
+    <p><strong>Third trimester (weeks 28-40+):</strong> The baby gains most of its birth weight during this period, and check-ups typically become more frequent as the due date approaches.</p>
+
+    <h3>Ultrasound Dating vs. LMP Dating</h3>
+    <p>Early first-trimester ultrasounds (before 14 weeks) are generally considered the most accurate way to date a pregnancy, since fetal growth is highly consistent at that stage. When ultrasound dating and LMP dating disagree by more than about a week, providers typically use the ultrasound date going forward.</p>
+  </div>
+</div>
+
+<script>
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+function trimesterOf(week){
+  if(week<14) return '1st Trimester';
+  if(week<28) return '2nd Trimester';
+  return '3rd Trimester';
+}
+
+function renderResult(containerId, dueDate){
+  const today = new Date();
+  const conception = new Date(dueDate.getTime() - 266*86400000);
+  const start = new Date(dueDate.getTime() - 280*86400000);
+  const daysPassed = Math.floor((today-start)/86400000);
+  const weeksPassed = Math.floor(daysPassed/7);
+  const daysRemainder = daysPassed%7;
+  const daysLeft = Math.max(0, Math.floor((dueDate-today)/86400000));
+  const pct = Math.min(100, Math.max(0,(daysPassed/280)*100));
+  const currentWeek = Math.max(0, Math.min(42, weeksPassed));
+
+  const fmt = d => d.toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+
+  document.getElementById(containerId).innerHTML = `
+    <div class="result show">
+      <div class="label">Estimated Due Date</div>
+      <div class="amt">${fmt(dueDate)}</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="breakdown">
+        <div class="brow"><span>Current Week</span><span>${currentWeek} weeks, ${daysRemainder} days</span></div>
+        <div class="brow"><span>Trimester</span><span>${trimesterOf(currentWeek)}</span></div>
+        <div class="brow"><span>Estimated Conception Date</span><span>${fmt(conception)}</span></div>
+        <div class="brow"><span>Days Until Due Date</span><span>${daysLeft}</span></div>
+      </div>
+    </div>`;
+}
+
+function calcLMP(){
+  const dateVal = document.getElementById('lmp_date').value;
+  if(!dateVal) return;
+  const cycle = +document.getElementById('lmp_cycle').value||28;
+  const lmp = new Date(dateVal+'T00:00:00');
+  const cycleAdjust = cycle-28;
+  const due = new Date(lmp.getTime() + (280+cycleAdjust)*86400000);
+  renderResult('lmp_out', due);
+}
+
+function calcConception(){
+  const dateVal = document.getElementById('c_date').value;
+  if(!dateVal) return;
+  const c = new Date(dateVal+'T00:00:00');
+  const due = new Date(c.getTime() + 266*86400000);
+  renderResult('c_out', due);
+}
+
+function calcUltrasound(){
+  const dateVal = document.getElementById('u_date').value;
+  if(!dateVal) return;
+  const weeks = +document.getElementById('u_weeks').value||0;
+  const days = +document.getElementById('u_days').value||0;
+  const scanDate = new Date(dateVal+'T00:00:00');
+  const gestDays = weeks*7+days;
+  const due = new Date(scanDate.getTime() + (280-gestDays)*86400000);
+  renderResult('u_out', due);
+}
+</script>
+</body>
+</html>

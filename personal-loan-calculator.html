@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Loan Calculator - Monthly Payment & Total Cost</title>
+<meta name="description" content="Free personal loan calculator. Estimate your monthly payment, or find the loan amount you can afford based on a target monthly payment.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .tab{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#FCFBF8;color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .panel{display:none;} .panel.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  .card h2{font-family:Georgia,serif;font-size:18px;color:var(--navy);margin:0 0 4px;}
+  .card .desc{color:var(--muted);font-size:13px;margin-bottom:16px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:38px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  .content{margin-top:36px;}
+  .content h2{font-family:Georgia,serif;font-size:22px;color:var(--navy);margin:32px 0 12px;}
+  .content h3{font-size:16px;color:var(--teal);margin:20px 0 8px;}
+  .content p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0 0 12px;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Personal Loan Calculator</h1>
+  <p class="sub">Estimate your monthly payment, or work out how much you can borrow for a target payment.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="payment" onclick="showTab('payment')">Find Monthly Payment</div>
+    <div class="tab" data-tab="amount" onclick="showTab('amount')">Find Loan Amount</div>
+  </div>
+
+  <div class="panel active" id="panel-payment">
+    <div class="card">
+      <h2>Find Your Monthly Payment</h2>
+      <p class="desc">Given a loan amount, rate, and term, calculates your monthly payment.</p>
+      <label for="p_amount">Loan Amount ($)</label>
+      <input type="number" id="p_amount" value="15000">
+      <div class="row">
+        <div><label for="p_rate">Interest Rate (% APR)</label><input type="number" id="p_rate" step="0.01" value="11.5"></div>
+        <div><label for="p_term">Loan Term (months)</label><input type="number" id="p_term" value="36"></div>
+      </div>
+      <label for="p_fee">Origination Fee (%)</label>
+      <input type="number" id="p_fee" value="3" step="0.1">
+      <button onclick="calcPayment()">Calculate Payment</button>
+    </div>
+    <div class="result" id="p_result">
+      <div class="label">Monthly Payment</div>
+      <div class="amt" id="p_monthly">$0</div>
+      <div class="breakdown">
+        <div class="brow"><span>Origination Fee</span><span id="p_feeAmt">$0</span></div>
+        <div class="brow"><span>Amount You Receive</span><span id="p_netAmt">$0</span></div>
+        <div class="brow"><span>Total Interest Paid</span><span id="p_totInt">$0</span></div>
+        <div class="brow"><span>Total Cost of Loan</span><span id="p_totCost">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-amount">
+    <div class="card">
+      <h2>Find How Much You Can Borrow</h2>
+      <p class="desc">Given a monthly payment you can afford, calculates the loan amount you'd qualify for.</p>
+      <label for="a_payment">Affordable Monthly Payment ($)</label>
+      <input type="number" id="a_payment" value="450">
+      <div class="row">
+        <div><label for="a_rate">Interest Rate (% APR)</label><input type="number" id="a_rate" step="0.01" value="11.5"></div>
+        <div><label for="a_term">Loan Term (months)</label><input type="number" id="a_term" value="36"></div>
+      </div>
+      <button onclick="calcAmount()">Calculate Loan Amount</button>
+    </div>
+    <div class="result" id="a_result">
+      <div class="label">Loan Amount You Can Borrow</div>
+      <div class="amt" id="a_amount">$0</div>
+      <div class="breakdown">
+        <div class="brow"><span>Total Paid Over Term</span><span id="a_totPaid">$0</span></div>
+        <div class="brow"><span>Total Interest Paid</span><span id="a_totInt">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Estimates only — actual rates depend on credit score, income, and lender. Not financial advice.</footer>
+
+  <div class="content">
+    <h2>How Personal Loan Rates Are Determined</h2>
+    <p>Unlike mortgages or auto loans, personal loans are usually unsecured — not backed by collateral — which means lenders rely heavily on credit score, income, and existing debt to set the rate. This is why personal loan APRs cover a much wider range than secured loans, commonly anywhere from around 7% for excellent credit to well over 30% for borrowers with weaker credit profiles.</p>
+
+    <h3>Why Origination Fees Matter</h3>
+    <p>Many personal loans deduct an origination fee (often 1-8% of the loan amount) from the funds before disbursing them, meaning the amount that actually lands in your account is less than the amount you're repaying. A loan advertised at a low rate but with a high origination fee can end up costing more than a slightly higher-rate loan with no fee — which is why comparing APR (which factors in fees) rather than the nominal rate alone gives a more accurate comparison.</p>
+
+    <h2>Common Uses for Personal Loans</h2>
+    <p>Debt consolidation is the most common reason people take out personal loans — combining higher-interest credit card debt into a single fixed-rate, fixed-term loan can lower the overall interest cost and simplify repayment. Other common uses include home improvement, medical expenses, and major purchases where a 0% promotional credit card isn't available or practical.</p>
+
+    <h3>Fixed vs. Variable Rate Personal Loans</h3>
+    <p>Most personal loans carry a fixed rate, meaning the payment never changes over the loan's life — this predictability is one of the main reasons people choose them over credit cards for large expenses. Variable-rate personal loans exist but are less common, and carry the risk of rising payments if benchmark rates increase during the loan term.</p>
+  </div>
+</div>
+
+<script>
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+function calcPayment(){
+  const amount = +document.getElementById('p_amount').value||0;
+  const rate = +document.getElementById('p_rate').value||0;
+  const term = +document.getElementById('p_term').value||1;
+  const feePct = +document.getElementById('p_fee').value||0;
+
+  const monthlyRate = rate/100/12;
+  const payment = monthlyRate===0 ? amount/term : amount*(monthlyRate*Math.pow(1+monthlyRate,term))/(Math.pow(1+monthlyRate,term)-1);
+  const feeAmt = amount*(feePct/100);
+  const netAmt = amount-feeAmt;
+  const totalPaid = payment*term;
+  const totalInterest = totalPaid-amount;
+
+  document.getElementById('p_monthly').textContent = '$'+payment.toFixed(2);
+  document.getElementById('p_feeAmt').textContent = '$'+feeAmt.toFixed(2);
+  document.getElementById('p_netAmt').textContent = '$'+netAmt.toFixed(2);
+  document.getElementById('p_totInt').textContent = '$'+totalInterest.toFixed(2);
+  document.getElementById('p_totCost').textContent = '$'+totalPaid.toFixed(2);
+  document.getElementById('p_result').classList.add('show');
+}
+
+function calcAmount(){
+  const payment = +document.getElementById('a_payment').value||0;
+  const rate = +document.getElementById('a_rate').value||0;
+  const term = +document.getElementById('a_term').value||1;
+  const monthlyRate = rate/100/12;
+
+  const amount = monthlyRate===0 ? payment*term : payment*(1-Math.pow(1+monthlyRate,-term))/monthlyRate;
+  const totalPaid = payment*term;
+  const totalInterest = totalPaid-amount;
+
+  document.getElementById('a_amount').textContent = '$'+amount.toFixed(2);
+  document.getElementById('a_totPaid').textContent = '$'+totalPaid.toFixed(2);
+  document.getElementById('a_totInt').textContent = '$'+totalInterest.toFixed(2);
+  document.getElementById('a_result').classList.add('show');
+}
+
+calcPayment();
+</script>
+</body>
+</html>

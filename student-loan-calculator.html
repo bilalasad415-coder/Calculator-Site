@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Loan Calculator - Payment, Payoff Time & Interest</title>
+<meta name="description" content="Free student loan calculator. Find your monthly payment under standard repayment, or see how extra payments speed up payoff and cut interest.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .tab{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#FCFBF8;color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .panel{display:none;} .panel.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  .card h2{font-family:Georgia,serif;font-size:18px;color:var(--navy);margin:0 0 4px;}
+  .card .desc{color:var(--muted);font-size:13px;margin-bottom:16px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:36px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  .savings-row{background:var(--gold);color:var(--navy);font-weight:700;}
+  .content{margin-top:36px;}
+  .content h2{font-family:Georgia,serif;font-size:22px;color:var(--navy);margin:32px 0 12px;}
+  .content h3{font-size:16px;color:var(--teal);margin:20px 0 8px;}
+  .content p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0 0 12px;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Student Loan Calculator</h1>
+  <p class="sub">Estimate your monthly payment under standard repayment, or see how extra payments cut your payoff time.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="standard" onclick="showTab('standard')">Standard Repayment</div>
+    <div class="tab" data-tab="extra" onclick="showTab('extra')">Payoff With Extra Payments</div>
+  </div>
+
+  <div class="panel active" id="panel-standard">
+    <div class="card">
+      <h2>Standard Repayment Plan</h2>
+      <p class="desc">Fixed monthly payments over your loan term.</p>
+      <label for="s_amount">Total Loan Balance ($)</label>
+      <input type="number" id="s_amount" value="30000">
+      <div class="row">
+        <div><label for="s_rate">Interest Rate (% APR)</label><input type="number" id="s_rate" step="0.01" value="6.5"></div>
+        <div><label for="s_term">Repayment Term (years)</label><input type="number" id="s_term" value="10"></div>
+      </div>
+      <button onclick="calcStandard()">Calculate Payment</button>
+    </div>
+    <div class="result" id="s_result">
+      <div class="label">Monthly Payment</div>
+      <div class="amt" id="s_monthly">$0</div>
+      <div class="breakdown">
+        <div class="brow"><span>Total Interest Paid</span><span id="s_totInt">$0</span></div>
+        <div class="brow"><span>Total Cost of Loan</span><span id="s_totCost">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-extra">
+    <div class="card">
+      <h2>Payoff With Extra Payments</h2>
+      <p class="desc">See how much time and interest an extra monthly payment can save.</p>
+      <label for="e_amount">Total Loan Balance ($)</label>
+      <input type="number" id="e_amount" value="30000">
+      <div class="row">
+        <div><label for="e_rate">Interest Rate (% APR)</label><input type="number" id="e_rate" step="0.01" value="6.5"></div>
+        <div><label for="e_term">Repayment Term (years)</label><input type="number" id="e_term" value="10"></div>
+      </div>
+      <label for="e_extra">Extra Monthly Payment ($)</label>
+      <input type="number" id="e_extra" value="100">
+      <button onclick="calcExtra()">Compare Payoff</button>
+    </div>
+    <div class="result" id="e_result">
+      <div class="label">New Payoff Time</div>
+      <div class="amt" id="e_newTime">0 years</div>
+      <div class="breakdown">
+        <div class="brow"><span>Original Payoff Time</span><span id="e_origTime">0</span></div>
+        <div class="brow"><span>Time Saved</span><span id="e_timeSaved">0</span></div>
+        <div class="brow savings-row"><span>Interest Saved</span><span id="e_interestSaved">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Estimates only. Federal loans may qualify for income-driven repayment, deferment, or forgiveness programs not modeled here — check studentaid.gov for official terms.</footer>
+
+  <div class="content">
+    <h2>Federal vs. Private Student Loans</h2>
+    <p>Federal student loans come with fixed rates set by Congress each year and offer protections private loans typically don't — income-driven repayment plans, deferment, forbearance, and potential forgiveness programs. Private student loans, issued by banks or credit unions, are priced based on the borrower's (or cosigner's) credit and usually offer fewer flexible repayment options if financial hardship hits.</p>
+
+    <h3>Standard vs. Income-Driven Repayment</h3>
+    <p>The standard repayment plan spreads federal loan payments evenly over 10 years. Income-driven repayment plans instead cap monthly payments at a percentage of discretionary income, extending the term (often to 20-25 years) — which lowers monthly payments but usually increases total interest paid over the life of the loan.</p>
+
+    <h2>Why Extra Payments Matter So Much on Student Loans</h2>
+    <p>Because student loan terms often run 10 years or longer, even a modest extra payment compounds into significant interest savings — every extra dollar paid toward principal stops accruing interest for the rest of the loan. Directing extra payments to the highest-interest loan first (if you have multiple loans) generally saves the most money overall, a strategy known as the debt avalanche method.</p>
+
+    <h3>The Interest Capitalization Trap</h3>
+    <p>Unpaid interest on federal loans can "capitalize" — get added to the principal balance — when deferment or forbearance periods end, meaning future interest is then charged on a larger balance. This is why even small payments during a financial hardship period (covering just the accruing interest) can meaningfully reduce total cost compared to letting interest capitalize.</p>
+  </div>
+</div>
+
+<script>
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+function calcStandard(){
+  const amount = +document.getElementById('s_amount').value||0;
+  const rate = +document.getElementById('s_rate').value||0;
+  const years = +document.getElementById('s_term').value||1;
+  const monthlyRate = rate/100/12;
+  const n = years*12;
+  const payment = monthlyRate===0 ? amount/n : amount*(monthlyRate*Math.pow(1+monthlyRate,n))/(Math.pow(1+monthlyRate,n)-1);
+  const totalPaid = payment*n;
+
+  document.getElementById('s_monthly').textContent = '$'+payment.toFixed(2);
+  document.getElementById('s_totInt').textContent = '$'+(totalPaid-amount).toFixed(2);
+  document.getElementById('s_totCost').textContent = '$'+totalPaid.toFixed(2);
+  document.getElementById('s_result').classList.add('show');
+}
+
+function payoffMonths(principal, monthlyRate, payment){
+  let balance = principal;
+  let months = 0;
+  while(balance>0 && months<600){
+    const interest = balance*monthlyRate;
+    balance += interest;
+    balance -= payment;
+    months++;
+  }
+  return months;
+}
+
+function calcExtra(){
+  const amount = +document.getElementById('e_amount').value||0;
+  const rate = +document.getElementById('e_rate').value||0;
+  const years = +document.getElementById('e_term').value||1;
+  const extra = +document.getElementById('e_extra').value||0;
+  const monthlyRate = rate/100/12;
+  const n = years*12;
+  const basePayment = monthlyRate===0 ? amount/n : amount*(monthlyRate*Math.pow(1+monthlyRate,n))/(Math.pow(1+monthlyRate,n)-1);
+
+  const origTotalInterest = basePayment*n-amount;
+  const newMonths = payoffMonths(amount, monthlyRate, basePayment+extra);
+
+  let balance = amount, totalPaidNew=0;
+  for(let m=0;m<newMonths;m++){
+    const interest = balance*monthlyRate;
+    balance += interest;
+    const pay = Math.min(basePayment+extra, balance);
+    balance -= pay;
+    totalPaidNew += pay;
+  }
+  const newTotalInterest = totalPaidNew-amount;
+  const interestSaved = origTotalInterest-newTotalInterest;
+  const monthsSaved = n-newMonths;
+
+  document.getElementById('e_newTime').textContent = (newMonths/12).toFixed(1)+' years';
+  document.getElementById('e_origTime').textContent = years+' years';
+  document.getElementById('e_timeSaved').textContent = (monthsSaved/12).toFixed(1)+' years';
+  document.getElementById('e_interestSaved').textContent = '$'+interestSaved.toFixed(0);
+  document.getElementById('e_result').classList.add('show');
+}
+
+calcStandard();
+</script>
+</body>
+</html>

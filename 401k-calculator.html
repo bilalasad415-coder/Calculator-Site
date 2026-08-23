@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>401(k) Calculator - Retirement Savings Growth With Employer Match</title>
+<meta name="description" content="Free 401(k) calculator. Project your account balance at retirement, or find the contribution rate needed to hit a target balance, including employer match.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .tab{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#FCFBF8;color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .panel{display:none;} .panel.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  .card h2{font-family:Georgia,serif;font-size:18px;color:var(--navy);margin:0 0 4px;}
+  .card .desc{color:var(--muted);font-size:13px;margin-bottom:16px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+  @media(max-width:520px){.row3{grid-template-columns:1fr;}}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:36px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  .content{margin-top:36px;}
+  .content h2{font-family:Georgia,serif;font-size:22px;color:var(--navy);margin:32px 0 12px;}
+  .content h3{font-size:16px;color:var(--teal);margin:20px 0 8px;}
+  .content p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0 0 12px;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>401(k) Calculator</h1>
+  <p class="sub">Project your account balance at retirement, or find the contribution rate you need.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="project" onclick="showTab('project')">Project Balance</div>
+    <div class="tab" data-tab="rate" onclick="showTab('rate')">Required Contribution Rate</div>
+  </div>
+
+  <div class="panel active" id="panel-project">
+    <div class="card">
+      <h2>Project Your 401(k) Balance</h2>
+      <p class="desc">Includes your contribution, employer match, and the 2026 IRS annual limit check.</p>
+      <div class="row3">
+        <div><label for="pr_age">Current Age</label><input type="number" id="pr_age" value="30"></div>
+        <div><label for="pr_retireAge">Retirement Age</label><input type="number" id="pr_retireAge" value="65"></div>
+        <div><label for="pr_return">Annual Return (%)</label><input type="number" id="pr_return" value="7" step="0.1"></div>
+      </div>
+      <label for="pr_balance">Current 401(k) Balance ($)</label>
+      <input type="number" id="pr_balance" value="15000">
+      <div class="row">
+        <div><label for="pr_salary">Annual Salary ($)</label><input type="number" id="pr_salary" value="70000"></div>
+        <div><label for="pr_contrib">Your Contribution (%)</label><input type="number" id="pr_contrib" value="8" step="0.5"></div>
+      </div>
+      <div class="row">
+        <div><label for="pr_matchPct">Employer Match (% of your contribution)</label><input type="number" id="pr_matchPct" value="50"></div>
+        <div><label for="pr_matchCap">Match Cap (% of salary)</label><input type="number" id="pr_matchCap" value="6"></div>
+      </div>
+      <button onclick="calcProject()">Project My Balance</button>
+    </div>
+    <div class="result" id="pr_result">
+      <div class="label">Projected Balance at Retirement</div>
+      <div class="amt" id="pr_future">$0</div>
+      <div class="breakdown">
+        <div class="brow"><span>Your Annual Contribution</span><span id="pr_yourAnnual">$0</span></div>
+        <div class="brow"><span>Employer Match (Annual)</span><span id="pr_matchAnnual">$0</span></div>
+        <div class="brow"><span>Total Contributed (You + Match)</span><span id="pr_totalContrib">$0</span></div>
+        <div class="brow"><span>Total Growth (Interest)</span><span id="pr_growth">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-rate">
+    <div class="card">
+      <h2>Contribution Rate Needed to Reach a Goal</h2>
+      <p class="desc">Solves for the contribution percentage required to hit a target balance.</p>
+      <div class="row">
+        <div><label for="r_age">Current Age</label><input type="number" id="r_age" value="30"></div>
+        <div><label for="r_retireAge">Retirement Age</label><input type="number" id="r_retireAge" value="65"></div>
+      </div>
+      <label for="r_goal">Target Balance at Retirement ($)</label>
+      <input type="number" id="r_goal" value="1500000">
+      <div class="row">
+        <div><label for="r_balance">Current Balance ($)</label><input type="number" id="r_balance" value="15000"></div>
+        <div><label for="r_return">Annual Return (%)</label><input type="number" id="r_return" value="7" step="0.1"></div>
+      </div>
+      <label for="r_salary">Annual Salary ($)</label>
+      <input type="number" id="r_salary" value="70000">
+      <button onclick="calcRate()">Calculate Required Contribution</button>
+    </div>
+    <div class="result" id="r_result">
+      <div class="label">Required Contribution Rate</div>
+      <div class="amt" id="r_pct">0%</div>
+      <div class="breakdown">
+        <div class="brow"><span>Required Monthly Contribution</span><span id="r_monthly">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Estimates assume a constant rate of return and steady salary. Not financial advice — consult a plan administrator or financial advisor.</footer>
+
+  <div class="content">
+    <h2>Why the Employer Match Is "Free Money"</h2>
+    <p>An employer match — commonly 50 cents to a full dollar for every dollar contributed, up to a percentage of salary — is compensation that only gets paid if the employee contributes enough to claim it. Contributing less than the amount needed to capture the full match effectively leaves part of the compensation package unclaimed, which is why financial advisors near-universally recommend contributing at least up to the match threshold before directing savings elsewhere.</p>
+
+    <h3>2026 Contribution Limits</h3>
+    <p>The IRS sets an annual limit on how much an employee can personally contribute to a 401(k) — a figure that's adjusted periodically for inflation. Employer contributions don't count against this individual limit, though a separate, higher combined limit applies to total contributions from both employee and employer.</p>
+
+    <h2>Traditional vs. Roth 401(k)</h2>
+    <p>A traditional 401(k) is funded with pre-tax dollars, lowering taxable income now, with withdrawals taxed in retirement. A Roth 401(k) is funded with after-tax dollars, so qualified withdrawals in retirement are tax-free. The better choice generally depends on whether an individual expects to be in a higher or lower tax bracket in retirement than they are now — younger workers early in their careers often lean Roth, since their current tax rate is likely lower than their eventual one.</p>
+
+    <h3>Vesting Schedules</h3>
+    <p>While an employee's own contributions are always 100% theirs, employer matching contributions are often subject to a vesting schedule — meaning the employee only fully owns the match after a certain number of years with the company. Leaving a job before being fully vested can mean forfeiting part of the employer match already credited to the account.</p>
+  </div>
+</div>
+
+<script>
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+function calcProject(){
+  const age = +document.getElementById('pr_age').value||0;
+  const retireAge = +document.getElementById('pr_retireAge').value||0;
+  const returnRate = +document.getElementById('pr_return').value/100;
+  const balance0 = +document.getElementById('pr_balance').value||0;
+  const salary = +document.getElementById('pr_salary').value||0;
+  const contribPct = +document.getElementById('pr_contrib').value/100;
+  const matchPct = +document.getElementById('pr_matchPct').value/100;
+  const matchCap = +document.getElementById('pr_matchCap').value/100;
+
+  const years = Math.max(0, retireAge-age);
+  const months = years*12;
+  const monthlyRate = returnRate/12;
+
+  const yourAnnual = salary*contribPct;
+  const matchableContribPct = Math.min(contribPct, matchCap);
+  const matchAnnual = salary*matchableContribPct*matchPct;
+  const monthlyYour = yourAnnual/12;
+  const monthlyMatch = matchAnnual/12;
+  const totalMonthly = monthlyYour+monthlyMatch;
+
+  let balance = balance0;
+  for(let m=0;m<months;m++){
+    balance += totalMonthly;
+    balance *= (1+monthlyRate);
+  }
+
+  const totalContrib = (yourAnnual+matchAnnual)*years;
+  const growth = balance-balance0-totalContrib;
+
+  document.getElementById('pr_future').textContent = '$'+balance.toFixed(0);
+  document.getElementById('pr_yourAnnual').textContent = '$'+yourAnnual.toFixed(0);
+  document.getElementById('pr_matchAnnual').textContent = '$'+matchAnnual.toFixed(0);
+  document.getElementById('pr_totalContrib').textContent = '$'+totalContrib.toFixed(0);
+  document.getElementById('pr_growth').textContent = '$'+growth.toFixed(0);
+  document.getElementById('pr_result').classList.add('show');
+}
+
+function calcRate(){
+  const age = +document.getElementById('r_age').value||0;
+  const retireAge = +document.getElementById('r_retireAge').value||0;
+  const goal = +document.getElementById('r_goal').value||0;
+  const balance0 = +document.getElementById('r_balance').value||0;
+  const returnRate = +document.getElementById('r_return').value/100;
+  const salary = +document.getElementById('r_salary').value||0;
+
+  const years = Math.max(0, retireAge-age);
+  const months = years*12;
+  const monthlyRate = returnRate/12;
+
+  const fvBalance = balance0*Math.pow(1+monthlyRate, months);
+  const remaining = Math.max(0, goal-fvBalance);
+  const monthlyNeeded = monthlyRate===0 ? remaining/months : remaining*monthlyRate/(Math.pow(1+monthlyRate,months)-1);
+  const annualNeeded = monthlyNeeded*12;
+  const pct = (annualNeeded/salary)*100;
+
+  document.getElementById('r_pct').textContent = pct.toFixed(1)+'%';
+  document.getElementById('r_monthly').textContent = '$'+monthlyNeeded.toFixed(2);
+  document.getElementById('r_result').classList.add('show');
+}
+
+calcProject();
+</script>
+</body>
+</html>

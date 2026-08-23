@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debt-to-Income Ratio Calculator - Front-End & Back-End DTI</title>
+<meta name="description" content="Free debt-to-income ratio calculator. Find your DTI ratio and see how it compares to typical mortgage lending thresholds.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:40px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .rating{display:inline-block;margin-top:10px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  .content{margin-top:36px;}
+  .content h2{font-family:Georgia,serif;font-size:22px;color:var(--navy);margin:32px 0 12px;}
+  .content h3{font-size:16px;color:var(--teal);margin:20px 0 8px;}
+  .content p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0 0 12px;}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13.5px;}
+  th,td{padding:8px;text-align:left;border-bottom:1px solid var(--line);}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Debt-to-Income Ratio Calculator</h1>
+  <p class="sub">See your DTI ratio and how it compares to typical lending thresholds.</p>
+
+  <div class="card">
+    <label for="income">Gross Monthly Income ($)</label>
+    <input type="number" id="income" value="6000">
+
+    <div class="row">
+      <div><label for="housing">Rent or Mortgage Payment ($)</label><input type="number" id="housing" value="1500"></div>
+      <div><label for="car">Car Payment ($)</label><input type="number" id="car" value="350"></div>
+    </div>
+    <div class="row">
+      <div><label for="student">Student Loan Payment ($)</label><input type="number" id="student" value="250"></div>
+      <div><label for="credit">Minimum Credit Card Payments ($)</label><input type="number" id="credit" value="150"></div>
+    </div>
+    <label for="other">Other Monthly Debt Payments ($)</label>
+    <input type="number" id="other" value="0">
+
+    <button onclick="calc()">Calculate DTI</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="label">Your Debt-to-Income Ratio</div>
+    <div class="amt" id="dti">0%</div>
+    <div class="rating" id="rating">—</div>
+    <div class="breakdown">
+      <div class="brow"><span>Total Monthly Debt Payments</span><span id="totalDebt">$0</span></div>
+      <div class="brow"><span>Housing-Only Ratio (Front-End)</span><span id="frontEnd">0%</span></div>
+    </div>
+  </div>
+
+  <footer>Estimates only. Lender-specific requirements vary — check with your lender for exact qualification thresholds.</footer>
+
+  <div class="content">
+    <h2>What Counts as Debt in a DTI Calculation</h2>
+    <p>DTI includes recurring debt obligations — mortgage or rent, car loans, student loans, minimum credit card payments, and personal loans — but not everyday living expenses like groceries, utilities, or insurance premiums that aren't tied to a debt. This distinction sometimes surprises people, since it means DTI can look favorable even for someone with tight monthly cash flow, if most of their spending goes to non-debt expenses.</p>
+
+    <h3>Front-End vs. Back-End Ratio</h3>
+    <p>The front-end ratio measures housing costs alone against income. The back-end ratio (the one most commonly called "DTI") measures all debt payments, including housing, against income. Mortgage lenders typically look at both, since a low back-end ratio with an unusually high front-end ratio can still signal a stretched budget.</p>
+
+    <h2>DTI Ranges and What They Typically Mean</h2>
+    <table>
+      <tr><th>DTI Ratio</th><th>General Rating</th></tr>
+      <tr><td>36% or below</td><td>Generally favorable to most lenders</td></tr>
+      <tr><td>37% - 43%</td><td>Acceptable for many loan programs, may need compensating factors</td></tr>
+      <tr><td>44% - 49%</td><td>Higher risk; fewer loan programs available</td></tr>
+      <tr><td>50%+</td><td>Difficult to qualify for most conventional loans</td></tr>
+    </table>
+    <p>Conventional mortgages often cap DTI around 43-45%, though government-backed loan programs (FHA, VA) sometimes allow higher ratios for qualified borrowers, particularly with strong credit or significant cash reserves.</p>
+
+    <h3>Why DTI Matters Beyond Mortgage Approval</h3>
+    <p>A high DTI doesn't just affect loan approval odds — it's also a practical signal of how much financial flexibility a household has if income drops or an unexpected expense arises. Many financial planners recommend keeping DTI meaningfully below lender maximums, not just low enough to qualify, as a cushion against financial shocks.</p>
+  </div>
+</div>
+
+<script>
+function calc(){
+  const income = +document.getElementById('income').value||1;
+  const housing = +document.getElementById('housing').value||0;
+  const car = +document.getElementById('car').value||0;
+  const student = +document.getElementById('student').value||0;
+  const credit = +document.getElementById('credit').value||0;
+  const other = +document.getElementById('other').value||0;
+
+  const totalDebt = housing+car+student+credit+other;
+  const dti = (totalDebt/income)*100;
+  const frontEnd = (housing/income)*100;
+
+  let ratingText, ratingColor;
+  if(dti<=36){ ratingText='Favorable'; ratingColor='#5FA85D'; }
+  else if(dti<=43){ ratingText='Acceptable'; ratingColor='#D9A441'; }
+  else if(dti<=49){ ratingText='Higher Risk'; ratingColor='#E08A3C'; }
+  else { ratingText='High'; ratingColor='#D9534F'; }
+
+  document.getElementById('dti').textContent = dti.toFixed(1)+'%';
+  document.getElementById('totalDebt').textContent = '$'+totalDebt.toFixed(2);
+  document.getElementById('frontEnd').textContent = frontEnd.toFixed(1)+'%';
+  const ratingEl = document.getElementById('rating');
+  ratingEl.textContent = ratingText;
+  ratingEl.style.background = ratingColor;
+  ratingEl.style.color = '#fff';
+  document.getElementById('result').classList.add('show');
+}
+calc();
+</script>
+</body>
+</html>

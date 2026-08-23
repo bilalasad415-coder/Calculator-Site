@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Savings Calculator - Growth, Goal Deposit & Time to Goal</title>
+<meta name="description" content="Free savings calculator. Project savings growth, find the monthly deposit needed for a goal, or find how long it takes to reach a savings target.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .tab{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#FCFBF8;color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .panel{display:none;} .panel.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  .card h2{font-family:Georgia,serif;font-size:18px;color:var(--navy);margin:0 0 4px;}
+  .card .desc{color:var(--muted);font-size:13px;margin-bottom:16px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:38px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  .content{margin-top:36px;}
+  .content h2{font-family:Georgia,serif;font-size:22px;color:var(--navy);margin:32px 0 12px;}
+  .content h3{font-size:16px;color:var(--teal);margin:20px 0 8px;}
+  .content p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0 0 12px;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Savings Calculator</h1>
+  <p class="sub">Project growth, find the deposit needed for a goal, or find how long it takes to get there.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="grow" onclick="showTab('grow')">Project Growth</div>
+    <div class="tab" data-tab="deposit" onclick="showTab('deposit')">Deposit for a Goal</div>
+    <div class="tab" data-tab="time" onclick="showTab('time')">Time to Reach a Goal</div>
+  </div>
+
+  <div class="panel active" id="panel-grow">
+    <div class="card">
+      <h2>Project Your Savings Growth</h2>
+      <p class="desc">See how a starting balance plus regular deposits grows with interest.</p>
+      <label for="g_principal">Starting Balance ($)</label>
+      <input type="number" id="g_principal" value="2000">
+      <div class="row">
+        <div><label for="g_monthly">Monthly Deposit ($)</label><input type="number" id="g_monthly" value="250"></div>
+        <div><label for="g_rate">Annual Interest Rate (%)</label><input type="number" id="g_rate" value="4.5" step="0.1"></div>
+      </div>
+      <label for="g_years">Time Period (years)</label>
+      <input type="number" id="g_years" value="5">
+      <button onclick="calcGrow()">Calculate Growth</button>
+    </div>
+    <div class="result" id="g_result">
+      <div class="label">Final Balance</div>
+      <div class="amt" id="g_total">$0</div>
+      <div class="breakdown">
+        <div class="brow"><span>Total Deposited</span><span id="g_deposited">$0</span></div>
+        <div class="brow"><span>Interest Earned</span><span id="g_interest">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-deposit">
+    <div class="card">
+      <h2>Deposit Needed to Reach a Goal</h2>
+      <p class="desc">Given a target amount and time frame, calculates the monthly deposit required.</p>
+      <label for="d_goal">Savings Goal ($)</label>
+      <input type="number" id="d_goal" value="20000">
+      <div class="row">
+        <div><label for="d_principal">Starting Balance ($)</label><input type="number" id="d_principal" value="2000"></div>
+        <div><label for="d_rate">Annual Interest Rate (%)</label><input type="number" id="d_rate" value="4.5" step="0.1"></div>
+      </div>
+      <label for="d_years">Time Period (years)</label>
+      <input type="number" id="d_years" value="5">
+      <button onclick="calcDeposit()">Calculate Monthly Deposit</button>
+    </div>
+    <div class="result" id="d_result">
+      <div class="label">Required Monthly Deposit</div>
+      <div class="amt" id="d_monthly">$0</div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-time">
+    <div class="card">
+      <h2>Time Needed to Reach a Goal</h2>
+      <p class="desc">Given a target amount and a fixed monthly deposit, calculates how long it will take.</p>
+      <label for="t_goal">Savings Goal ($)</label>
+      <input type="number" id="t_goal" value="20000">
+      <div class="row">
+        <div><label for="t_principal">Starting Balance ($)</label><input type="number" id="t_principal" value="2000"></div>
+        <div><label for="t_monthly">Monthly Deposit ($)</label><input type="number" id="t_monthly" value="300"></div>
+      </div>
+      <label for="t_rate">Annual Interest Rate (%)</label>
+      <input type="number" id="t_rate" value="4.5" step="0.1">
+      <button onclick="calcTime()">Calculate Time to Goal</button>
+    </div>
+    <div class="result" id="t_result">
+      <div class="label">Time to Reach Goal</div>
+      <div class="amt" id="t_time">0 years</div>
+    </div>
+  </div>
+
+  <footer>Estimates assume a constant interest rate and consistent deposits. Not financial advice.</footer>
+
+  <div class="content">
+    <h2>Where to Keep Different Kinds of Savings</h2>
+    <p>Short-term savings (an emergency fund, a purchase within 1-2 years) are generally best kept in a high-yield savings account or CD, where the principal is protected and can't lose value to market swings. Longer-term goals (5+ years out) are often better suited to investment accounts, since historically higher average returns can outpace what savings accounts offer — at the cost of short-term volatility that a pure savings account doesn't have.</p>
+
+    <h3>High-Yield Savings vs. Traditional Savings</h3>
+    <p>Online high-yield savings accounts often pay meaningfully more interest than traditional brick-and-mortar bank savings accounts, since online banks have lower overhead costs to pass on to customers. The FDIC insures both types equally up to the standard coverage limit per depositor, per bank, so the safety is generally the same — the rate is usually the main differentiator.</p>
+
+    <h2>The Value of Automating Deposits</h2>
+    <p>Setting up automatic transfers on payday, before spending money elsewhere, is one of the most consistently cited habits in personal finance for reaching savings goals — it removes the need for ongoing willpower and treats saving like a fixed expense rather than whatever's left over at the end of the month.</p>
+
+    <h3>Building an Emergency Fund First</h3>
+    <p>Most financial guidance recommends building 3-6 months of essential expenses in an easily accessible emergency fund before directing extra savings toward other goals or investments. This cushion is what prevents an unexpected expense from turning into high-interest credit card debt, which can undo months or years of other savings progress.</p>
+  </div>
+</div>
+
+<script>
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+function calcGrow(){
+  const principal = +document.getElementById('g_principal').value||0;
+  const monthly = +document.getElementById('g_monthly').value||0;
+  const rate = +document.getElementById('g_rate').value/100;
+  const years = +document.getElementById('g_years').value||0;
+  const r = rate/12;
+  const n = years*12;
+  const fvP = principal*Math.pow(1+r, n);
+  const fvC = r===0 ? monthly*n : monthly*((Math.pow(1+r,n)-1)/r);
+  const total = fvP+fvC;
+  const deposited = principal+monthly*n;
+
+  document.getElementById('g_total').textContent = '$'+total.toFixed(2);
+  document.getElementById('g_deposited').textContent = '$'+deposited.toFixed(2);
+  document.getElementById('g_interest').textContent = '$'+(total-deposited).toFixed(2);
+  document.getElementById('g_result').classList.add('show');
+}
+
+function calcDeposit(){
+  const goal = +document.getElementById('d_goal').value||0;
+  const principal = +document.getElementById('d_principal').value||0;
+  const rate = +document.getElementById('d_rate').value/100;
+  const years = +document.getElementById('d_years').value||0;
+  const r = rate/12;
+  const n = years*12;
+  const fvP = principal*Math.pow(1+r, n);
+  const remaining = Math.max(0, goal-fvP);
+  const monthly = r===0 ? remaining/n : remaining*r/(Math.pow(1+r,n)-1);
+
+  document.getElementById('d_monthly').textContent = '$'+monthly.toFixed(2);
+  document.getElementById('d_result').classList.add('show');
+}
+
+function calcTime(){
+  const goal = +document.getElementById('t_goal').value||0;
+  const principal = +document.getElementById('t_principal').value||0;
+  const monthly = +document.getElementById('t_monthly').value||0;
+  const rate = +document.getElementById('t_rate').value/100;
+  const r = rate/12;
+
+  let balance = principal, months=0;
+  while(balance<goal && months<1200){
+    balance += monthly;
+    balance *= (1+r);
+    months++;
+  }
+
+  document.getElementById('t_time').textContent = (months/12).toFixed(1)+' years';
+  document.getElementById('t_result').classList.add('show');
+}
+
+calcGrow();
+</script>
+</body>
+</html>

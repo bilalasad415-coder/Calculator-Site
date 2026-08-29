@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Calculator - 50/30/20 Rule Monthly Budget Planner</title>
+<meta name="description" content="Free budget calculator using the 50/30/20 rule. See how much to allocate to needs, wants, and savings based on your income, or check your current spending.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .tab{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#FCFBF8;color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .panel{display:none;} .panel.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  .card h2{font-family:Georgia,serif;font-size:18px;color:var(--navy);margin:0 0 4px;}
+  .card .desc{color:var(--muted);font-size:13px;margin-bottom:16px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
+  .bars{display:flex;flex-direction:column;gap:10px;text-align:left;margin-top:14px;}
+  .bar-row{}
+  .bar-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;}
+  .bar-track{background:rgba(255,255,255,.15);border-radius:6px;height:10px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:6px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  .warn{background:#F6E9C9;color:#7A5A00;border-radius:8px;padding:12px 14px;font-size:13px;margin-top:14px;display:none;}
+  .warn.show{display:block;}
+  .content{margin-top:36px;}
+  .content h2{font-family:Georgia,serif;font-size:22px;color:var(--navy);margin:32px 0 12px;}
+  .content h3{font-size:16px;color:var(--teal);margin:20px 0 8px;}
+  .content p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0 0 12px;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Budget Calculator</h1>
+  <p class="sub">Plan a 50/30/20 budget from your income, or check how your actual spending compares.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="plan" onclick="showTab('plan')">Plan My Budget</div>
+    <div class="tab" data-tab="check" onclick="showTab('check')">Check My Spending</div>
+  </div>
+
+  <div class="panel active" id="panel-plan">
+    <div class="card">
+      <h2>Plan Your Budget (50/30/20 Rule)</h2>
+      <p class="desc">50% needs, 30% wants, 20% savings/debt payoff — a widely used starting framework.</p>
+      <label for="p_income">Monthly Take-Home Pay ($)</label>
+      <input type="number" id="p_income" value="4500">
+      <button onclick="calcPlan()">Calculate My Budget</button>
+    </div>
+    <div class="result" id="p_result">
+      <div class="label">Your Suggested Monthly Budget</div>
+      <div class="bars">
+        <div class="bar-row">
+          <div class="bar-label"><span>Needs (50%)</span><span id="p_needs">$0</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:50%;background:var(--gold);"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label"><span>Wants (30%)</span><span id="p_wants">$0</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:30%;background:#5aa9e6;"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label"><span>Savings / Debt Payoff (20%)</span><span id="p_savings">$0</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:20%;background:#9b8cf2;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-check">
+    <div class="card">
+      <h2>Check Your Current Spending</h2>
+      <p class="desc">Enter your actual monthly spending to see how it compares to the 50/30/20 guideline.</p>
+      <label for="c_income">Monthly Take-Home Pay ($)</label>
+      <input type="number" id="c_income" value="4500">
+      <div class="row">
+        <div><label for="c_needs">Needs Spending ($)</label><input type="number" id="c_needs" value="2600"></div>
+        <div><label for="c_wants">Wants Spending ($)</label><input type="number" id="c_wants" value="1200"></div>
+      </div>
+      <label for="c_savings">Savings / Debt Payoff ($)</label>
+      <input type="number" id="c_savings" value="700">
+      <button onclick="calcCheck()">Check My Budget</button>
+    </div>
+    <div class="warn" id="c_warn">Your spending adds up to more than your income — you may be running a monthly deficit.</div>
+    <div class="result" id="c_result">
+      <div class="label">How Your Spending Compares</div>
+      <div class="breakdown">
+        <div class="brow"><span>Needs</span><span id="c_needsPct">0% (target 50%)</span></div>
+        <div class="brow"><span>Wants</span><span id="c_wantsPct">0% (target 30%)</span></div>
+        <div class="brow"><span>Savings / Debt Payoff</span><span id="c_savingsPct">0% (target 20%)</span></div>
+        <div class="brow"><span>Unallocated / Remaining</span><span id="c_remaining">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>The 50/30/20 rule is a general guideline — adjust the ratios to fit your city's cost of living and personal goals.</footer>
+
+  <div class="content">
+    <h2>The 50/30/20 Rule, Explained</h2>
+    <p>Popularized by Senator Elizabeth Warren's book "All Your Worth," the 50/30/20 rule allocates after-tax income into three buckets: 50% for needs (housing, groceries, utilities, minimum debt payments), 30% for wants (dining out, entertainment, subscriptions, hobbies), and 20% for savings and extra debt payoff. It's intentionally simple — three categories rather than a dozen line items — which is part of why it's remained a popular starting framework for people who find detailed budgeting apps overwhelming.</p>
+
+    <h3>Needs vs. Wants — Where People Get It Wrong</h3>
+    <p>The most common mistake is classifying discretionary spending as a "need" — a premium cable package, the newest phone model, or dining out are wants, even if they feel routine. A more honest test: would this spending continue at a bare-bones survival budget? If not, it's a want, however normal it feels.</p>
+
+    <h2>Adjusting the Ratios for High-Cost Areas</h2>
+    <p>In expensive cities, housing alone can consume 40-50% of take-home pay, making the strict 50/30/20 split unrealistic without either a higher income or a smaller "wants" allocation. Many financial planners suggest treating 50/30/20 as a starting reference rather than a rigid rule, and adjusting based on actual local cost of living.</p>
+
+    <h3>Why the Savings Category Includes Debt Payoff</h3>
+    <p>The 20% category is often described as "savings and debt repayment" because extra payments toward high-interest debt function similarly to savings — both build financial position, just in different forms. Prioritizing high-interest debt payoff within this category typically has a better "return" than most savings vehicles, since it's guaranteed to reduce interest expense at the debt's rate.</p>
+  </div>
+</div>
+
+<script>
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+function calcPlan(){
+  const income = +document.getElementById('p_income').value||0;
+  document.getElementById('p_needs').textContent = '$'+(income*0.5).toFixed(2);
+  document.getElementById('p_wants').textContent = '$'+(income*0.3).toFixed(2);
+  document.getElementById('p_savings').textContent = '$'+(income*0.2).toFixed(2);
+  document.getElementById('p_result').classList.add('show');
+}
+
+function calcCheck(){
+  const income = +document.getElementById('c_income').value||1;
+  const needs = +document.getElementById('c_needs').value||0;
+  const wants = +document.getElementById('c_wants').value||0;
+  const savings = +document.getElementById('c_savings').value||0;
+  const total = needs+wants+savings;
+  const remaining = income-total;
+
+  const warnEl = document.getElementById('c_warn');
+  if(total>income){ warnEl.classList.add('show'); } else { warnEl.classList.remove('show'); }
+
+  document.getElementById('c_needsPct').textContent = ((needs/income)*100).toFixed(1)+'% (target 50%)';
+  document.getElementById('c_wantsPct').textContent = ((wants/income)*100).toFixed(1)+'% (target 30%)';
+  document.getElementById('c_savingsPct').textContent = ((savings/income)*100).toFixed(1)+'% (target 20%)';
+  document.getElementById('c_remaining').textContent = '$'+remaining.toFixed(2);
+  document.getElementById('c_result').classList.add('show');
+}
+
+calcPlan();
+</script>
+</body>
+</html>

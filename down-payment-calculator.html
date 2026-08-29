@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Down Payment Calculator - How Much to Put Down on a Home</title>
+<meta name="description" content="Free down payment calculator. Find the down payment needed for a home price, or the home price you can afford with a given down payment.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .tab{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#FCFBF8;color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .panel{display:none;} .panel.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  .card h2{font-family:Georgia,serif;font-size:18px;color:var(--navy);margin:0 0 4px;}
+  .card .desc{color:var(--muted);font-size:13px;margin-bottom:16px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:36px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  .content{margin-top:36px;}
+  .content h2{font-family:Georgia,serif;font-size:22px;color:var(--navy);margin:32px 0 12px;}
+  .content h3{font-size:16px;color:var(--teal);margin:20px 0 8px;}
+  .content p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0 0 12px;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Down Payment Calculator</h1>
+  <p class="sub">Find the down payment needed for a home, or the price you can afford with what you've saved.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="fromPrice" onclick="showTab('fromPrice')">From Home Price</div>
+    <div class="tab" data-tab="fromSavings" onclick="showTab('fromSavings')">From Savings</div>
+  </div>
+
+  <div class="panel active" id="panel-fromPrice">
+    <div class="card">
+      <h2>Down Payment Needed for a Home Price</h2>
+      <p class="desc">Calculates the down payment and loan amount for a target home price.</p>
+      <label for="p_price">Home Price ($)</label>
+      <input type="number" id="p_price" value="400000">
+      <label for="p_pct">Down Payment (%)</label>
+      <select id="p_pct">
+        <option value="3">3% (Conventional minimum)</option>
+        <option value="3.5">3.5% (FHA minimum)</option>
+        <option value="10">10%</option>
+        <option value="20" selected>20% (Avoids PMI)</option>
+        <option value="25">25%</option>
+      </select>
+      <button onclick="calcFromPrice()">Calculate Down Payment</button>
+    </div>
+    <div class="result" id="p_result">
+      <div class="label">Down Payment Needed</div>
+      <div class="amt" id="p_down">$0</div>
+      <div class="breakdown">
+        <div class="brow"><span>Loan Amount</span><span id="p_loan">$0</span></div>
+        <div class="brow"><span>PMI Likely Required?</span><span id="p_pmi">-</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-fromSavings">
+    <div class="card">
+      <h2>Home Price You Can Afford</h2>
+      <p class="desc">Given how much you've saved for a down payment, calculates the home price it supports.</p>
+      <label for="s_savings">Amount Saved for Down Payment ($)</label>
+      <input type="number" id="s_savings" value="60000">
+      <label for="s_pct">Target Down Payment (%)</label>
+      <select id="s_pct">
+        <option value="3">3% (Conventional minimum)</option>
+        <option value="3.5">3.5% (FHA minimum)</option>
+        <option value="10">10%</option>
+        <option value="20" selected>20% (Avoids PMI)</option>
+        <option value="25">25%</option>
+      </select>
+      <button onclick="calcFromSavings()">Calculate Home Price</button>
+    </div>
+    <div class="result" id="s_result">
+      <div class="label">Home Price You Can Afford</div>
+      <div class="amt" id="s_price">$0</div>
+      <div class="breakdown">
+        <div class="brow"><span>Resulting Loan Amount</span><span id="s_loan">$0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Estimates only. Actual lending requirements vary by lender, loan program, and credit profile. Not financial advice.</footer>
+
+  <div class="content">
+    <h2>How Much Down Payment Do You Actually Need?</h2>
+    <p>The "20% down" figure often quoted isn't a legal requirement — it's the threshold most conventional lenders use to waive Private Mortgage Insurance (PMI). Many loan programs allow far less: conventional loans can go as low as 3% down for qualified first-time buyers, and FHA loans allow 3.5% down with a lower minimum credit score requirement.</p>
+
+    <h3>What Is PMI, and Why Does It Matter?</h3>
+    <p>Private Mortgage Insurance protects the lender (not the borrower) if the loan defaults, and is typically required whenever a conventional loan has less than 20% down. PMI usually costs 0.5-1.5% of the loan amount annually, added to the monthly payment, and can typically be removed once the loan balance drops to 80% of the home's value.</p>
+
+    <h2>Down Payment vs. Closing Costs</h2>
+    <p>The down payment is only part of the cash needed at closing — buyers also typically pay closing costs of roughly 2-5% of the purchase price, covering items like appraisal fees, title insurance, and loan origination charges. A common budgeting mistake is saving only for the down payment and being caught short on closing costs.</p>
+
+    <h3>Should You Put Down More Than 20%?</h3>
+    <p>Putting down more than 20% avoids PMI and lowers the monthly payment, but it also ties up more cash in an illiquid asset. Whether that trade-off makes sense depends on the mortgage rate versus what that extra cash could otherwise earn, and how much liquidity a buyer wants to keep for emergencies or other goals.</p>
+
+    <h2>Down Payment Assistance Programs</h2>
+    <p>Many US states and some employers offer down payment assistance programs — grants or low-interest second loans — aimed primarily at first-time buyers. Eligibility and amounts vary significantly by location, so checking state housing finance agency programs is often worthwhile before assuming a large down payment is the only path to buying.</p>
+  </div>
+</div>
+
+<script>
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+function calcFromPrice(){
+  const price = +document.getElementById('p_price').value||0;
+  const pct = +document.getElementById('p_pct').value;
+  const down = price*(pct/100);
+  const loan = price-down;
+
+  document.getElementById('p_down').textContent = '$'+down.toFixed(2);
+  document.getElementById('p_loan').textContent = '$'+loan.toFixed(2);
+  document.getElementById('p_pmi').textContent = pct<20 ? 'Likely yes' : 'Likely no';
+  document.getElementById('p_result').classList.add('show');
+}
+
+function calcFromSavings(){
+  const savings = +document.getElementById('s_savings').value||0;
+  const pct = +document.getElementById('s_pct').value;
+  const price = savings/(pct/100);
+  const loan = price-savings;
+
+  document.getElementById('s_price').textContent = '$'+price.toFixed(2);
+  document.getElementById('s_loan').textContent = '$'+loan.toFixed(2);
+  document.getElementById('s_result').classList.add('show');
+}
+
+calcFromPrice();
+</script>
+</body>
+</html>

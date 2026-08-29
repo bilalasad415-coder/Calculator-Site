@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refinance Calculator - Break-Even Point & Monthly Savings</title>
+<meta name="description" content="Free mortgage refinance calculator. Compare your current loan to a new rate, and find your break-even point after closing costs.">
+<style>
+  :root{--navy:#0F2A3D;--teal:#1B4B5A;--gold:#D9A441;--bg:#F6F4EF;--ink:#16232B;--muted:#5A6570;--card:#FFFFFF;--line:#E4DFD3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;color:var(--navy);margin:0 0 6px;letter-spacing:-0.3px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 24px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px;}
+  .card h2{font-family:Georgia,serif;font-size:18px;color:var(--navy);margin:0 0 12px;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+  input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#FCFBF8;color:var(--ink);}
+  input:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  button{margin-top:22px;width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:16px;font-weight:600;cursor:pointer;}
+  button:hover{background:var(--teal);}
+  .result{background:var(--navy);color:#fff;border-radius:10px;padding:26px;text-align:center;display:none;}
+  .result.show{display:block;}
+  .result .amt{font-family:Georgia,serif;font-size:36px;color:var(--gold);margin:4px 0;}
+  .result .label{font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:18px;text-align:left;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;opacity:.9;}
+  .savings-row{background:var(--gold);color:var(--navy);font-weight:700;}
+  .content{margin-top:36px;}
+  .content h2{font-family:Georgia,serif;font-size:22px;color:var(--navy);margin:32px 0 12px;}
+  .content h3{font-size:16px;color:var(--teal);margin:20px 0 8px;}
+  .content p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0 0 12px;}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Refinance Calculator</h1>
+  <p class="sub">Compare your current mortgage to a new rate, and find how long it takes to break even on closing costs.</p>
+
+  <div class="card">
+    <h2>Current Loan</h2>
+    <div class="row">
+      <div><label for="c_balance">Remaining Balance ($)</label><input type="number" id="c_balance" value="280000"></div>
+      <div><label for="c_rate">Current Rate (% APR)</label><input type="number" id="c_rate" step="0.01" value="7.2"></div>
+    </div>
+    <label for="c_remaining">Years Remaining on Current Loan</label>
+    <input type="number" id="c_remaining" value="27">
+  </div>
+
+  <div class="card">
+    <h2>New Loan (Refinance)</h2>
+    <div class="row">
+      <div><label for="n_rate">New Rate (% APR)</label><input type="number" id="n_rate" step="0.01" value="6.0"></div>
+      <div><label for="n_term">New Term (years)</label><input type="number" id="n_term" value="30"></div>
+    </div>
+    <label for="n_costs">Closing Costs ($)</label>
+    <input type="number" id="n_costs" value="6000">
+    <button onclick="calc()">Compare & Calculate Break-Even</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="label">Monthly Payment Savings</div>
+    <div class="amt" id="monthlySavings">$0</div>
+    <div class="breakdown">
+      <div class="brow"><span>Current Monthly Payment</span><span id="currentPayment">$0</span></div>
+      <div class="brow"><span>New Monthly Payment</span><span id="newPayment">$0</span></div>
+      <div class="brow savings-row"><span>Break-Even Point</span><span id="breakEven">0 months</span></div>
+      <div class="brow"><span>Lifetime Interest — Current Loan</span><span id="currentInt">$0</span></div>
+      <div class="brow"><span>Lifetime Interest — New Loan</span><span id="newInt">$0</span></div>
+    </div>
+  </div>
+
+  <footer>Estimates only — doesn't account for tax deduction differences or changes in loan type (e.g. ARM to fixed). Not financial advice.</footer>
+
+  <div class="content">
+    <h2>When Does Refinancing Make Sense?</h2>
+    <p>The classic rule of thumb is that refinancing is worth considering when the new rate is at least 0.5-1% lower than the current rate, though the real answer depends more on the break-even point — how long it takes for monthly savings to cover the closing costs — compared to how long you plan to stay in the home.</p>
+
+    <h3>The Break-Even Point Explained</h3>
+    <p>Dividing closing costs by the monthly payment savings gives the break-even point in months. If refinancing costs $6,000 and saves $200 a month, break-even is 30 months — refinancing only pays off if you plan to keep the loan (or stay in the home) longer than that.</p>
+
+    <h2>Resetting the Clock: A Hidden Cost</h2>
+    <p>Refinancing into a new 30-year term resets the amortization schedule, meaning early payments go disproportionately toward interest again, just like at the start of any new mortgage. Someone 10 years into a 30-year mortgage who refinances into another 30-year term is effectively extending their total payoff timeline by a decade, even if the rate is lower — a shorter refinance term (like 20 or 15 years) avoids this if the goal is a lower rate without stretching the payoff date.</p>
+
+    <h3>Cash-Out Refinancing</h3>
+    <p>A cash-out refinance replaces the mortgage with a larger loan, with the difference paid out in cash — commonly used for home improvements, debt consolidation, or other large expenses. Since it increases the loan balance, it typically increases the total interest paid over the life of the loan even if the rate is lower than the original mortgage.</p>
+
+    <h2>Other Costs to Watch For</h2>
+    <p>Beyond closing costs, refinancing can involve appraisal fees, title insurance, and sometimes prepayment penalties on the original loan — all of which should factor into the break-even calculation. Rate-and-term refinances (no cash out, just a better rate or term) are usually the simplest and cheapest type to execute.</p>
+  </div>
+</div>
+
+<script>
+function monthlyPayment(principal, annualRate, years){
+  const r = annualRate/100/12;
+  const n = years*12;
+  return r===0 ? principal/n : principal*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
+}
+
+function calc(){
+  const balance = +document.getElementById('c_balance').value||0;
+  const currentRate = +document.getElementById('c_rate').value||0;
+  const remainingYears = +document.getElementById('c_remaining').value||1;
+  const newRate = +document.getElementById('n_rate').value||0;
+  const newTerm = +document.getElementById('n_term').value||1;
+  const closingCosts = +document.getElementById('n_costs').value||0;
+
+  const currentPayment = monthlyPayment(balance, currentRate, remainingYears);
+  const newPayment = monthlyPayment(balance, newRate, newTerm);
+  const monthlySavings = currentPayment-newPayment;
+  const breakEven = monthlySavings>0 ? closingCosts/monthlySavings : Infinity;
+
+  const currentTotalInterest = currentPayment*remainingYears*12-balance;
+  const newTotalInterest = newPayment*newTerm*12-balance;
+
+  document.getElementById('monthlySavings').textContent = (monthlySavings>=0?'$':'-$')+Math.abs(monthlySavings).toFixed(2);
+  document.getElementById('currentPayment').textContent = '$'+currentPayment.toFixed(2);
+  document.getElementById('newPayment').textContent = '$'+newPayment.toFixed(2);
+  document.getElementById('breakEven').textContent = isFinite(breakEven) ? breakEven.toFixed(1)+' months' : 'N/A (no savings)';
+  document.getElementById('currentInt').textContent = '$'+currentTotalInterest.toFixed(0);
+  document.getElementById('newInt').textContent = '$'+newTotalInterest.toFixed(0);
+  document.getElementById('result').classList.add('show');
+}
+calc();
+</script>
+</body>
+</html>

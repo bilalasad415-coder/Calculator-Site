@@ -244,15 +244,60 @@
   .nav-drop a:hover{color:#e8a33d;}
 
   @media(min-width:760px){
-    .nav-toggle{display:none;}
-    .nav-menu{display:flex !important;position:static;background:none;border:none;padding:0;gap:26px;max-height:none;}
-    .nav-group{border:none;position:relative;}
-    .nav-cat{width:auto;padding:8px 0;}
-    .nav-drop{position:absolute;top:100%;left:0;background:var(--surface,#1b212b);border:1px solid var(--line,#2c3542);border-radius:10px;padding:8px;min-width:230px;box-shadow:0 12px 30px rgba(0,0,0,.35);}
-    .nav-group:hover .nav-drop{display:block;}
-    .nav-drop a{padding:9px 10px;border-radius:6px;}
-    .nav-drop a:hover{background:var(--surface-2,#232a35);}
+  .nav-toggle{
+    display:none;
   }
+
+  .nav-menu{
+    display:flex !important;
+    position:static;
+    background:none;
+    border:none;
+    padding:0;
+    gap:20px;
+    max-height:none;
+    overflow:visible;
+    flex:1;
+    min-width:0;
+    justify-content:flex-end;
+  }
+
+  .nav-group{
+    border:none;
+    position:relative;
+  }
+
+  .nav-cat{
+    width:auto;
+    padding:8px 0;
+    white-space:nowrap;
+  }
+
+  .nav-drop{
+    position:absolute;
+    top:100%;
+    left:0;
+    background:var(--surface,#1b212b);
+    border:1px solid var(--line,#2c3542);
+    border-radius:10px;
+    padding:8px;
+    min-width:230px;
+    box-shadow:0 12px 30px rgba(0,0,0,.35);
+  }
+
+  .nav-group:hover .nav-drop{
+    display:block;
+  }
+
+  .nav-drop a{
+    padding:9px 10px;
+    border-radius:6px;
+  }
+
+  .nav-drop a:hover{
+    background:var(--surface-2,#232a35);
+  }
+}
 </style>
 
 </head>
